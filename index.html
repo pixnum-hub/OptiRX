@@ -1,0 +1,2075 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0d1117" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f6f8fa" media="(prefers-color-scheme: light)">
+<meta name="application-name" content="OptiRx">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="OptiRx">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="description" content="OptiRx — Professional Glass Prescription Calculator for Ophthalmology. OD/OS Rx entry, CL conversion, anisometropia check, presbyopia estimator, lens material recommendation and more.">
+<meta name="keywords" content="ophthalmology, prescription calculator, optometry, SPH, CYL, AXIS, ADD, glasses, contact lens, eye care">
+<meta name="author" content="Manik Roy">
+<meta property="og:title" content="OptiRx — Glass Prescription Calculator">
+<meta property="og:description" content="Professional ophthalmology prescription calculator with 20+ clinical tools.">
+<meta property="og:type" content="website">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
+<title>OptiRx — Glass Prescription Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--transition:0.35s cubic-bezier(0.4,0,0.2,1);}
+[data-theme="dark"]{--bg:#0d1117;--bg2:#161b22;--bg3:#21262d;--border:#30363d;--accent:#58a6ff;--accent2:#3fb950;--accent3:#f78166;--text:#e6edf3;--text2:#8b949e;--text3:#484f58;--card:rgba(22,27,34,0.9);--glow:0 0 24px rgba(88,166,255,0.15);--input-bg:#0d1117;--result-bg:#161b22;--badge-bg:rgba(88,166,255,0.12);--warning:#f0883e;--success:#3fb950;}
+[data-theme="light"]{--bg:#f6f8fa;--bg2:#ffffff;--bg3:#eaeef2;--border:#d0d7de;--accent:#0969da;--accent2:#1a7f37;--accent3:#cf222e;--text:#1f2328;--text2:#656d76;--text3:#9a9fa6;--card:rgba(255,255,255,0.95);--glow:0 2px 16px rgba(9,105,218,0.1);--input-bg:#ffffff;--result-bg:#f6f8fa;--badge-bg:rgba(9,105,218,0.08);--warning:#bc4c00;--success:#1a7f37;}
+[data-theme="oled"]{--bg:#000000;--bg2:#0a0a0a;--bg3:#111111;--border:#1e1e1e;--accent:#00d4ff;--accent2:#00ff88;--accent3:#ff6b6b;--text:#f0f0f0;--text2:#707070;--text3:#333333;--card:rgba(10,10,10,0.95);--glow:0 0 32px rgba(0,212,255,0.2);--input-bg:#000000;--result-bg:#0a0a0a;--badge-bg:rgba(0,212,255,0.1);--warning:#ff9500;--success:#00ff88;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Instrument Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;transition:background var(--transition),color var(--transition);line-height:1.6;}
+body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(ellipse 80% 50% at 20% 10%,rgba(88,166,255,0.06) 0%,transparent 60%),radial-gradient(ellipse 60% 40% at 80% 90%,rgba(63,185,80,0.04) 0%,transparent 60%);pointer-events:none;z-index:0;}
+[data-theme="oled"] body::before{background-image:radial-gradient(ellipse 80% 50% at 20% 10%,rgba(0,212,255,0.07) 0%,transparent 60%),radial-gradient(ellipse 60% 40% at 80% 90%,rgba(0,255,136,0.05) 0%,transparent 60%);}
+[data-theme="light"] body::before{background-image:radial-gradient(ellipse 80% 50% at 20% 10%,rgba(9,105,218,0.04) 0%,transparent 60%),radial-gradient(ellipse 60% 40% at 80% 90%,rgba(26,127,55,0.03) 0%,transparent 60%);}
+.page-wrap{position:relative;z-index:1;flex:1;width:100%;max-width:720px;margin:0 auto;padding:1.5rem 1rem 2rem;display:flex;flex-direction:column;gap:1.25rem;}
+
+/* HEADER */
+header{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;padding-bottom:0.75rem;border-bottom:1px solid var(--border);}
+.logo-eyemark{display:flex;align-items:center;gap:0.5rem;margin-bottom:0.1rem;}
+.eye-icon{width:28px;height:28px;flex-shrink:0;}
+.logo-text{font-family:'DM Serif Display',serif;font-size:1.6rem;color:var(--text);letter-spacing:-0.02em;line-height:1;}
+.logo-text span{color:var(--accent);}
+.logo-sub{font-family:'DM Mono',monospace;font-size:0.62rem;color:var(--text2);letter-spacing:0.12em;text-transform:uppercase;padding-left:38px;}
+.theme-cluster{display:flex;flex-direction:column;align-items:flex-end;gap:0.4rem;}
+.theme-label{font-family:'DM Mono',monospace;font-size:0.58rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em;}
+.theme-toggle{display:flex;gap:0.3rem;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:3px;}
+.theme-btn{background:none;border:none;cursor:pointer;padding:5px 10px;border-radius:5px;font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--text2);transition:all 0.2s;white-space:nowrap;letter-spacing:0.05em;}
+.theme-btn:hover{color:var(--text);background:var(--bg2);}
+.theme-btn.active{background:var(--accent);color:#fff;font-weight:500;}
+
+/* TABS */
+.eye-tabs{display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;}
+.eye-tab{background:var(--bg3);border:1.5px solid var(--border);border-radius:10px;padding:0.7rem;cursor:pointer;transition:all 0.2s;text-align:center;}
+.eye-tab.active{border-color:var(--accent);background:var(--badge-bg);}
+.eye-tab-label{font-family:'DM Mono',monospace;font-size:0.58rem;text-transform:uppercase;letter-spacing:0.15em;color:var(--text2);margin-bottom:2px;}
+.eye-tab.active .eye-tab-label{color:var(--accent);}
+.eye-tab-name{font-family:'DM Serif Display',serif;font-size:1.1rem;color:var(--text);}
+
+/* CARD */
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.25rem;box-shadow:var(--glow);backdrop-filter:blur(8px);transition:border-color var(--transition),box-shadow var(--transition);}
+.card:hover{border-color:var(--accent);}
+.card-header{display:flex;align-items:center;gap:0.6rem;margin-bottom:1rem;}
+.card-pill{display:inline-flex;align-items:center;gap:0.4rem;background:var(--badge-bg);border:1px solid var(--accent);color:var(--accent);font-family:'DM Mono',monospace;font-size:0.6rem;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;padding:3px 10px;border-radius:100px;}
+.card-title{font-family:'DM Serif Display',serif;font-size:1.05rem;color:var(--text);}
+
+/* FORM */
+.rx-form{display:flex;flex-direction:column;gap:0.9rem;}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;}
+.field-row.three{grid-template-columns:1fr 1fr 1fr;}
+.field{display:flex;flex-direction:column;gap:0.3rem;}
+.field label{font-family:'DM Mono',monospace;font-size:0.6rem;font-weight:500;text-transform:uppercase;letter-spacing:0.1em;color:var(--text2);}
+.field label abbr{text-decoration:none;border-bottom:1px dotted var(--text3);cursor:help;}
+.field input,.field select{background:var(--input-bg);border:1.5px solid var(--border);color:var(--text);font-family:'DM Mono',monospace;font-size:0.95rem;padding:0.55rem 0.75rem;border-radius:8px;outline:none;width:100%;transition:border-color 0.2s,box-shadow 0.2s;-webkit-appearance:none;appearance:none;}
+.field input[type=date]{font-size:0.82rem;}
+.field input:focus,.field select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(88,166,255,0.12);}
+[data-theme="oled"] .field input:focus,[data-theme="oled"] .field select:focus{box-shadow:0 0 0 3px rgba(0,212,255,0.12);}
+.field select option{background:var(--bg2);color:var(--text);}
+.field .hint{font-size:0.58rem;color:var(--text3);font-family:'DM Mono',monospace;}
+.range-row{display:flex;align-items:center;gap:0.5rem;}
+.range-row input[type=range]{flex:1;-webkit-appearance:none;appearance:none;background:var(--bg3);height:4px;border-radius:2px;outline:none;border:none;padding:0;}
+.range-row input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--accent);cursor:pointer;box-shadow:0 0 6px rgba(88,166,255,0.4);}
+.range-val{font-family:'DM Mono',monospace;font-size:0.85rem;color:var(--accent);min-width:3.5rem;text-align:right;}
+.divider{border:none;border-top:1px solid var(--border);margin:0.25rem 0;}
+.section-heading{font-family:'DM Mono',monospace;font-size:0.6rem;text-transform:uppercase;letter-spacing:0.14em;color:var(--text3);display:flex;align-items:center;gap:0.6rem;}
+.section-heading::before,.section-heading::after{content:'';flex:1;border-top:1px solid var(--border);}
+
+/* BUTTONS */
+.calc-btn{width:100%;padding:0.85rem;background:var(--accent);color:#fff;border:none;border-radius:10px;font-family:'DM Mono',monospace;font-size:0.85rem;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:0.5rem;margin-top:0.5rem;}
+.calc-btn:hover{filter:brightness(1.12);transform:translateY(-1px);box-shadow:0 6px 20px rgba(88,166,255,0.3);}
+.calc-btn:active{transform:translateY(0);}
+.calc-btn.secondary{background:transparent;border:1.5px solid var(--border);color:var(--text2);margin-top:0;}
+.calc-btn.secondary:hover{border-color:var(--accent3);color:var(--accent3);box-shadow:none;filter:none;}
+.calc-btn.whatsapp{background:#25D366;color:#fff;}
+.calc-btn.whatsapp:hover{box-shadow:0 6px 20px rgba(37,211,102,0.35);filter:brightness(1.08);}
+
+/* RESULTS */
+.results-card{background:var(--result-bg);border:1px solid var(--border);border-radius:14px;overflow:hidden;transition:all var(--transition);}
+.results-card.hidden{display:none;}
+.results-header{background:var(--badge-bg);border-bottom:1px solid var(--border);padding:0.75rem 1.25rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.5rem;}
+.results-title{font-family:'DM Serif Display',serif;font-size:1rem;color:var(--accent);}
+.results-badge{font-family:'DM Mono',monospace;font-size:0.58rem;background:var(--accent);color:#fff;padding:2px 8px;border-radius:100px;letter-spacing:0.1em;text-transform:uppercase;}
+.results-body{padding:1.25rem;display:flex;flex-direction:column;gap:1rem;}
+.eye-heading{font-family:'DM Mono',monospace;font-size:0.62rem;text-transform:uppercase;letter-spacing:0.14em;color:var(--text2);margin-bottom:0.6rem;display:flex;align-items:center;gap:0.4rem;}
+.eye-heading::after{content:'';flex:1;border-top:1px solid var(--border);}
+.rx-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0.5rem;margin-bottom:0.75rem;}
+@media(max-width:380px){.rx-grid{grid-template-columns:repeat(2,1fr);}}
+.rx-cell{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:0.5rem 0.4rem;text-align:center;}
+.rx-cell-label{font-family:'DM Mono',monospace;font-size:0.52rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:3px;}
+.rx-cell-value{font-family:'DM Mono',monospace;font-size:0.95rem;font-weight:500;color:var(--accent);}
+.rx-cell.highlight{border-color:var(--accent);background:var(--badge-bg);}
+.derived-row{display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;}
+.derived-item{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:0.6rem 0.75rem;display:flex;align-items:center;justify-content:space-between;}
+.derived-label{font-family:'DM Mono',monospace;font-size:0.58rem;color:var(--text2);text-transform:uppercase;letter-spacing:0.08em;}
+.derived-value{font-family:'DM Mono',monospace;font-size:0.9rem;font-weight:500;color:var(--accent2);}
+.alert-strip{display:flex;align-items:flex-start;gap:0.6rem;background:rgba(240,136,62,0.08);border:1px solid rgba(240,136,62,0.3);border-radius:8px;padding:0.65rem 0.85rem;font-family:'DM Mono',monospace;font-size:0.68rem;color:var(--warning);line-height:1.5;}
+.alert-strip.good{background:rgba(63,185,80,0.08);border-color:rgba(63,185,80,0.3);color:var(--success);}
+.alert-strip.info{background:rgba(88,166,255,0.08);border-color:rgba(88,166,255,0.3);color:var(--accent);}
+
+/* F1: Vision Score */
+.vision-score-wrap{padding:1rem;background:var(--bg3);border:1px solid var(--border);border-radius:10px;}
+.vision-score-label{font-family:'DM Mono',monospace;font-size:0.6rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text2);margin-bottom:0.5rem;display:flex;justify-content:space-between;flex-wrap:wrap;gap:0.25rem;}
+.vision-bar-track{background:var(--border);border-radius:6px;height:8px;overflow:hidden;}
+.vision-bar-fill{height:100%;border-radius:6px;transition:width 0.8s cubic-bezier(0.4,0,0.2,1);}
+.vision-score-text{font-family:'DM Serif Display',serif;font-size:1.3rem;text-align:center;margin-top:0.5rem;}
+
+/* F3: History */
+.history-list{display:flex;flex-direction:column;gap:0.5rem;max-height:280px;overflow-y:auto;}
+.history-item{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:0.65rem 0.85rem;cursor:pointer;transition:border-color 0.2s;display:flex;justify-content:space-between;align-items:center;gap:0.5rem;}
+.history-item:hover{border-color:var(--accent);}
+.history-item-info{font-family:'DM Mono',monospace;font-size:0.68rem;color:var(--text2);margin-top:2px;line-height:1.5;}
+.history-item-rx{font-family:'DM Mono',monospace;font-size:0.75rem;color:var(--accent);}
+.history-item-date{font-family:'DM Mono',monospace;font-size:0.58rem;color:var(--text3);margin-top:2px;}
+.history-empty{font-family:'DM Mono',monospace;font-size:0.72rem;color:var(--text3);text-align:center;padding:1.5rem 1rem;}
+.history-del{background:none;border:none;cursor:pointer;color:var(--text3);font-size:0.85rem;padding:4px 8px;border-radius:4px;flex-shrink:0;}
+.history-del:hover{color:var(--accent3);}
+
+/* F4: CL */
+.cl-result-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;}
+.cl-cell{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:0.55rem 0.75rem;}
+.cl-cell-label{font-family:'DM Mono',monospace;font-size:0.55rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text3);margin-bottom:3px;}
+.cl-cell-value{font-family:'DM Mono',monospace;font-size:0.85rem;color:var(--accent2);font-weight:500;}
+
+/* F5: Aniso */
+.aniso-badge{display:inline-block;font-family:'DM Mono',monospace;font-size:0.65rem;padding:4px 12px;border-radius:100px;margin-top:0.5rem;font-weight:500;letter-spacing:0.08em;}
+.aniso-ok{background:rgba(63,185,80,0.15);color:var(--success);border:1px solid rgba(63,185,80,0.3);}
+.aniso-mild{background:rgba(240,136,62,0.15);color:var(--warning);border:1px solid rgba(240,136,62,0.3);}
+.aniso-high{background:rgba(247,129,102,0.15);color:var(--accent3);border:1px solid rgba(247,129,102,0.4);}
+
+/* NEW F11: Rx Comparison */
+.compare-table{width:100%;border-collapse:collapse;font-family:'DM Mono',monospace;font-size:0.72rem;}
+.compare-table th{padding:0.4rem 0.6rem;background:var(--bg3);color:var(--text2);text-transform:uppercase;letter-spacing:0.08em;font-size:0.58rem;border:1px solid var(--border);}
+.compare-table td{padding:0.4rem 0.6rem;border:1px solid var(--border);text-align:center;color:var(--text);}
+.compare-table tr:nth-child(even) td{background:var(--bg3);}
+.compare-change-up{color:var(--warning);}
+.compare-change-same{color:var(--success);}
+
+/* NEW F14: QR Code */
+.qr-wrap{display:flex;flex-direction:column;align-items:center;gap:0.75rem;padding:1rem;}
+.qr-canvas{border:4px solid var(--bg3);border-radius:8px;background:#fff;}
+
+/* NEW F15: Monocular PD */
+.mono-pd-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.5rem;}
+
+/* NEW F17: Accommodation */
+.accomm-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;}
+
+/* NEW F18: Font size accessibility */
+body.fs-large .field input,body.fs-large .field select{font-size:1.1rem;padding:0.65rem 0.85rem;}
+body.fs-large .rx-cell-value{font-size:1.1rem;}
+body.fs-large .derived-value{font-size:1rem;}
+
+/* NEW F19: PWA install banner */
+.pwa-banner{background:var(--badge-bg);border:1px solid var(--accent);border-radius:10px;padding:0.75rem 1rem;display:flex;align-items:center;justify-content:space-between;gap:0.75rem;}
+.pwa-banner-text{font-family:'DM Mono',monospace;font-size:0.68rem;color:var(--text2);line-height:1.5;}
+.pwa-banner-btn{background:var(--accent);color:#fff;border:none;border-radius:7px;font-family:'DM Mono',monospace;font-size:0.65rem;padding:0.4rem 0.85rem;cursor:pointer;white-space:nowrap;flex-shrink:0;}
+
+/* NEW F20: Rx Expiry */
+.expiry-chip{display:inline-flex;align-items:center;gap:0.4rem;font-family:'DM Mono',monospace;font-size:0.65rem;padding:4px 10px;border-radius:100px;font-weight:500;}
+.expiry-valid{background:rgba(63,185,80,0.15);color:var(--success);border:1px solid rgba(63,185,80,0.3);}
+.expiry-soon{background:rgba(240,136,62,0.15);color:var(--warning);border:1px solid rgba(240,136,62,0.3);}
+.expiry-expired{background:rgba(247,129,102,0.15);color:var(--accent3);border:1px solid rgba(247,129,102,0.4);}
+
+/* INFO PANEL */
+.info-toggle{background:none;border:1px solid var(--border);color:var(--text2);font-family:'DM Mono',monospace;font-size:0.62rem;text-transform:uppercase;letter-spacing:0.1em;padding:0.45rem 0.85rem;border-radius:7px;cursor:pointer;transition:all 0.2s;}
+.info-toggle:hover{border-color:var(--accent);color:var(--accent);}
+.info-panel{background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden;max-height:0;transition:max-height 0.4s ease;}
+.info-panel.open{max-height:2000px;}
+.info-inner{padding:1.25rem;display:flex;flex-direction:column;gap:0.9rem;}
+.info-title{font-family:'DM Serif Display',serif;font-size:0.95rem;color:var(--text);margin-bottom:0.3rem;}
+.info-item{display:grid;grid-template-columns:90px 1fr;gap:0.6rem;padding-bottom:0.7rem;border-bottom:1px solid var(--border);}
+.info-item:last-child{border-bottom:none;padding-bottom:0;}
+.info-term{font-family:'DM Mono',monospace;font-size:0.7rem;color:var(--accent);font-weight:500;}
+.info-def{color:var(--text2);line-height:1.55;font-size:0.78rem;}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:1000;display:none;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(4px);}
+.modal-overlay.open{display:flex;}
+.modal-box{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:1.5rem;width:100%;max-width:440px;box-shadow:0 20px 60px rgba(0,0,0,0.4);animation:fadeIn 0.2s ease;max-height:90vh;overflow-y:auto;}
+.modal-title{font-family:'DM Serif Display',serif;font-size:1.1rem;color:var(--text);margin-bottom:1rem;}
+.modal-close{float:right;background:none;border:none;color:var(--text2);font-size:1.2rem;cursor:pointer;margin-top:-4px;}
+.modal-close:hover{color:var(--accent3);}
+
+/* Textarea */
+.notes-textarea{background:var(--input-bg);border:1.5px solid var(--border);color:var(--text);font-family:'DM Mono',monospace;font-size:0.8rem;padding:0.65rem 0.75rem;border-radius:8px;outline:none;width:100%;min-height:72px;resize:vertical;transition:border-color 0.2s;line-height:1.6;}
+.notes-textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(88,166,255,0.12);}
+.notes-textarea::placeholder{color:var(--text3);}
+
+/* mini pill button */
+.mpill{background:var(--badge-bg);color:var(--accent);border:1px solid var(--accent);border-radius:6px;font-family:'DM Mono',monospace;font-size:0.58rem;padding:3px 10px;cursor:pointer;letter-spacing:.08em;text-transform:uppercase;transition:all 0.2s;}
+.mpill:hover{background:var(--accent);color:#fff;}
+.mpill.green{background:rgba(63,185,80,0.12);color:var(--success);border-color:var(--success);}
+.mpill.green:hover{background:var(--success);color:#fff;}
+
+/* DISCLAIMER */
+.disclaimer-box{background:var(--bg2);border:1.5px solid var(--accent3);border-radius:14px;overflow:hidden;transition:all 0.4s ease;}
+.disclaimer-box.hidden{display:none;}
+.disclaimer-header{display:flex;align-items:center;gap:0.5rem;padding:0.75rem 1.25rem;background:rgba(247,129,102,0.08);border-bottom:1px solid rgba(247,129,102,0.25);font-family:"DM Mono",monospace;font-size:0.68rem;font-weight:500;text-transform:uppercase;letter-spacing:0.1em;color:var(--accent3);}
+.disclaimer-body{padding:1.1rem 1.25rem;display:flex;flex-direction:column;gap:0.65rem;}
+.disclaimer-body p{font-family:"DM Mono",monospace;font-size:0.68rem;color:var(--text2);line-height:1.7;}
+.disclaimer-body p strong{color:var(--text);font-weight:500;}
+.disclaimer-footer{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.75rem;padding:0.75rem 1.25rem;background:rgba(247,129,102,0.05);border-top:1px solid rgba(247,129,102,0.2);font-family:"DM Mono",monospace;font-size:0.6rem;color:var(--text3);}
+.disclaimer-dismiss{background:var(--accent3);color:#fff;border:none;border-radius:7px;font-family:"DM Mono",monospace;font-size:0.65rem;font-weight:500;padding:0.45rem 1rem;cursor:pointer;letter-spacing:0.07em;text-transform:uppercase;transition:filter 0.2s;}
+.disclaimer-dismiss:hover{filter:brightness(1.1);}
+.disclaimer-compact{display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0.85rem;background:rgba(247,129,102,0.06);border:1px solid rgba(247,129,102,0.2);border-radius:8px;font-family:"DM Mono",monospace;font-size:0.62rem;color:var(--text3);flex-wrap:wrap;}
+.disclaimer-compact.hidden{display:none;}
+
+/* FOOTER */
+footer{position:relative;z-index:1;text-align:center;padding:1.25rem 1rem 1.5rem;border-top:1px solid var(--border);display:flex;flex-direction:column;align-items:center;gap:0.3rem;}
+.footer-copy{font-family:"DM Mono",monospace;font-size:0.65rem;color:var(--text3);letter-spacing:0.05em;}
+.footer-copy strong{color:var(--text2);font-weight:500;}
+.footer-sub{font-family:"DM Mono",monospace;font-size:0.58rem;color:var(--text3);letter-spacing:0.08em;text-transform:uppercase;}
+.footer-disclaimer-line{font-family:"DM Mono",monospace;font-size:0.56rem;color:var(--text3);letter-spacing:0.06em;opacity:0.7;margin-top:0.1rem;}
+
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.results-card:not(.hidden){animation:fadeIn 0.3s ease forwards;}
+@media(min-width:520px){.page-wrap{padding:2rem 1.5rem 3rem;gap:1.5rem;}.logo-text{font-size:1.9rem;}}
+@media(min-width:680px){.page-wrap{padding:2.5rem 2rem 4rem;}}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}::-webkit-scrollbar-thumb:hover{background:var(--accent)}
+input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none}
+input[type=number]{-moz-appearance:textfield}
+
+/* PRINT */
+@media print{
+  body{background:#fff!important;color:#000!important;}
+  .no-print{display:none!important;}
+  .print-only{display:block!important;}
+  .results-card,.card{box-shadow:none!important;border:1px solid #ddd!important;break-inside:avoid;}
+  .results-card{display:block!important;}
+  .page-wrap{max-width:100%;padding:0;}
+  footer{border-top:1px solid #ccc;}
+}
+.print-only{display:none;}
+
+/* ═══════════════════════════════════════════════════
+   LICENSING & SUBSCRIPTION SYSTEM
+   ═══════════════════════════════════════════════════ */
+
+/* Lockscreen overlay */
+#license-gate{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;align-items:center;justify-content:center;padding:1.5rem;overflow-y:auto;}
+#license-gate.hidden{display:none;}
+.gate-box{background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:2rem 1.75rem;width:100%;max-width:480px;box-shadow:0 32px 80px rgba(0,0,0,0.6);}
+.gate-logo{display:flex;align-items:center;gap:0.6rem;margin-bottom:0.25rem;}
+.gate-logo-text{font-family:'DM Serif Display',serif;font-size:1.8rem;color:var(--text);letter-spacing:-0.02em;}
+.gate-logo-text span{color:var(--accent);}
+.gate-tagline{font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.14em;margin-bottom:1.75rem;}
+
+/* Tab switcher inside gate */
+.gate-tabs{display:grid;grid-template-columns:1fr 1fr;gap:0.4rem;background:var(--bg3);border-radius:10px;padding:4px;margin-bottom:1.5rem;}
+.gate-tab{background:none;border:none;cursor:pointer;padding:0.55rem;border-radius:7px;font-family:'DM Mono',monospace;font-size:0.68rem;color:var(--text2);transition:all 0.2s;letter-spacing:0.05em;}
+.gate-tab.active{background:var(--accent);color:#fff;font-weight:500;}
+
+/* Panels */
+.gate-panel{display:none;flex-direction:column;gap:1rem;}
+.gate-panel.active{display:flex;}
+
+/* Machine ID box */
+.machine-id-box{background:var(--bg3);border:1.5px dashed var(--border);border-radius:10px;padding:1rem;position:relative;}
+.machine-id-label{font-family:'DM Mono',monospace;font-size:0.58rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--text3);margin-bottom:0.5rem;}
+.machine-id-value{font-family:'DM Mono',monospace;font-size:0.82rem;color:var(--accent);word-break:break-all;line-height:1.6;}
+.machine-id-copy{position:absolute;top:0.75rem;right:0.75rem;background:var(--badge-bg);border:1px solid var(--accent);color:var(--accent);border-radius:6px;font-family:'DM Mono',monospace;font-size:0.58rem;padding:3px 8px;cursor:pointer;transition:all 0.2s;}
+.machine-id-copy:hover{background:var(--accent);color:#fff;}
+
+/* Pricing card */
+.price-card{background:linear-gradient(135deg,rgba(88,166,255,0.08) 0%,rgba(63,185,80,0.05) 100%);border:1.5px solid var(--accent);border-radius:12px;padding:1.1rem 1.25rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;}
+.price-amount{font-family:'DM Serif Display',serif;font-size:1.8rem;color:var(--accent);line-height:1;}
+.price-period{font-family:'DM Mono',monospace;font-size:0.62rem;color:var(--text2);text-transform:uppercase;letter-spacing:0.1em;margin-top:3px;}
+.price-features{display:flex;flex-direction:column;gap:0.3rem;}
+.price-feature{font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--text2);display:flex;align-items:center;gap:0.4rem;}
+.price-feature::before{content:'✓';color:var(--success);font-size:0.6rem;}
+
+/* Inputs */
+.gate-field{display:flex;flex-direction:column;gap:0.3rem;}
+.gate-label{font-family:'DM Mono',monospace;font-size:0.6rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text2);}
+.gate-input{background:var(--input-bg);border:1.5px solid var(--border);color:var(--text);font-family:'DM Mono',monospace;font-size:0.9rem;padding:0.6rem 0.85rem;border-radius:8px;outline:none;width:100%;transition:border-color 0.2s,box-shadow 0.2s;letter-spacing:0.06em;}
+.gate-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(88,166,255,0.12);}
+.gate-input.error{border-color:var(--accent3);box-shadow:0 0 0 3px rgba(247,129,102,0.12);}
+
+/* Buttons */
+.gate-btn{width:100%;padding:0.9rem;background:var(--accent);color:#fff;border:none;border-radius:10px;font-family:'DM Mono',monospace;font-size:0.85rem;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:0.5rem;}
+.gate-btn:hover{filter:brightness(1.12);transform:translateY(-1px);box-shadow:0 6px 20px rgba(88,166,255,0.3);}
+.gate-btn:active{transform:translateY(0);}
+.gate-btn.secondary{background:transparent;border:1.5px solid var(--border);color:var(--text2);}
+.gate-btn.secondary:hover{border-color:var(--accent);color:var(--accent);filter:none;box-shadow:none;}
+.gate-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none;filter:none;}
+
+/* Status messages */
+.gate-msg{font-family:'DM Mono',monospace;font-size:0.68rem;padding:0.65rem 0.85rem;border-radius:8px;line-height:1.5;display:none;}
+.gate-msg.error{background:rgba(247,129,102,0.1);border:1px solid rgba(247,129,102,0.3);color:var(--accent3);display:block;}
+.gate-msg.success{background:rgba(63,185,80,0.1);border:1px solid rgba(63,185,80,0.3);color:var(--success);display:block;}
+.gate-msg.info{background:rgba(88,166,255,0.08);border:1px solid rgba(88,166,255,0.25);color:var(--accent);display:block;}
+
+/* Contact / payment info */
+.gate-contact{background:var(--bg3);border-radius:10px;padding:0.85rem 1rem;font-family:'DM Mono',monospace;font-size:0.68rem;color:var(--text2);line-height:1.8;}
+.gate-contact strong{color:var(--text);}
+.gate-contact a{color:var(--accent);text-decoration:none;}
+.gate-contact a:hover{text-decoration:underline;}
+
+/* Subscription status bar in header */
+.sub-status-bar{background:var(--badge-bg);border:1px solid var(--accent);border-radius:8px;padding:0.4rem 0.85rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.5rem;font-family:'DM Mono',monospace;font-size:0.6rem;margin:0 auto;max-width:720px;width:calc(100% - 2rem);position:relative;z-index:10;}
+.sub-status-bar.expired{background:rgba(247,129,102,0.08);border-color:var(--accent3);}
+.sub-status-bar.trial{background:rgba(240,136,62,0.08);border-color:var(--warning);}
+.sub-status-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.sub-status-dot.active{background:var(--success);box-shadow:0 0 6px var(--success);}
+.sub-status-dot.expired{background:var(--accent3);}
+.sub-status-dot.trial{background:var(--warning);}
+.sub-info{display:flex;align-items:center;gap:0.5rem;color:var(--text2);}
+.sub-name{color:var(--text);font-weight:500;}
+.sub-manage-btn{background:none;border:1px solid var(--border);color:var(--text2);border-radius:5px;font-family:'DM Mono',monospace;font-size:0.58rem;padding:2px 8px;cursor:pointer;transition:all 0.2s;}
+.sub-manage-btn:hover{border-color:var(--accent);color:var(--accent);}
+
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════
+     LICENSE GATE — shown until valid subscription
+     ═══════════════════════════════════════════════════ -->
+<div id="license-gate">
+  <div class="gate-box">
+
+    <!-- Logo -->
+    <div class="gate-logo">
+      <svg width="32" height="32" viewBox="0 0 28 28" fill="none">
+        <ellipse cx="14" cy="14" rx="13" ry="8" stroke="var(--accent)" stroke-width="1.6" fill="none"/>
+        <circle cx="14" cy="14" r="4.5" stroke="var(--accent)" stroke-width="1.5" fill="var(--badge-bg)"/>
+        <circle cx="15.5" cy="12.5" r="1.2" fill="var(--accent)" opacity="0.7"/>
+      </svg>
+      <div class="gate-logo-text">Opti<span>Rx</span></div>
+    </div>
+    <div class="gate-tagline">Professional Ophthalmology Suite · ₹599 / month per device</div>
+
+    <!-- Tab Switcher -->
+    <div class="gate-tabs">
+      <button class="gate-tab active" onclick="switchGateTab('activate')">🔑 Activate License</button>
+      <button class="gate-tab" onclick="switchGateTab('subscribe')">💳 Subscribe</button>
+    </div>
+
+    <!-- PANEL: ACTIVATE LICENSE -->
+    <div class="gate-panel active" id="panel-activate">
+
+      <!-- Machine ID display -->
+      <div class="machine-id-box">
+        <div class="machine-id-label">Your Device ID — send this to receive your license key</div>
+        <div class="machine-id-value" id="machine-id-display">Generating…</div>
+        <button class="machine-id-copy" onclick="copyMachineId()">Copy</button>
+      </div>
+
+      <!-- License key entry -->
+      <div class="gate-field">
+        <label class="gate-label">License Key</label>
+        <input class="gate-input" id="license-key-input" type="text" placeholder="OPTIRX-XXXX-XXXX-XXXX-XXXX" maxlength="29" oninput="formatLicenseKey(this)" autocomplete="off" spellcheck="false">
+      </div>
+
+      <div class="gate-msg" id="activate-msg"></div>
+
+      <button class="gate-btn" onclick="activateLicense()">🔓 Activate OptiRx</button>
+      <button class="gate-btn secondary" onclick="switchGateTab('subscribe')">Don't have a key? Subscribe →</button>
+    </div>
+
+    <!-- PANEL: SUBSCRIBE -->
+    <div class="gate-panel" id="panel-subscribe">
+
+      <!-- Pricing card -->
+      <div class="price-card">
+        <div>
+          <div class="price-amount">₹599</div>
+          <div class="price-period">per month · per device</div>
+        </div>
+        <div class="price-features">
+          <div class="price-feature">20+ clinical calculation tools</div>
+          <div class="price-feature">Offline PWA — works without internet</div>
+          <div class="price-feature">Machine-locked — secure per device</div>
+          <div class="price-feature">Full prescription history & export</div>
+          <div class="price-feature">WhatsApp share + PDF print</div>
+        </div>
+      </div>
+
+      <!-- Machine ID for sending to vendor -->
+      <div class="machine-id-box">
+        <div class="machine-id-label">Step 1 — Copy your Device ID and send it to us</div>
+        <div class="machine-id-value" id="machine-id-display-2">Generating…</div>
+        <button class="machine-id-copy" onclick="copyMachineId()">Copy</button>
+      </div>
+
+      <!-- Payment & contact -->
+      <div class="gate-contact">
+        <strong>Step 2 — Make Payment</strong><br>
+        UPI / GPay / PhonePe / Paytm:<br>
+        <strong id="upi-id-display">manikroy@upi</strong> &nbsp;·&nbsp; ₹599/month<br><br>
+        <strong>Step 3 — Send Device ID + Payment screenshot to:</strong><br>
+        📧 <a href="mailto:manikroy@email.com" id="contact-email">manikroy@email.com</a><br>
+        📱 <a href="https://wa.me/919800000000" id="contact-wa" target="_blank">WhatsApp: +91 98000 00000</a><br><br>
+        <strong>Step 4 — Receive your license key within 2 hours</strong><br>
+        <span style="color:var(--text3)">Keys are valid for 30 days from activation on your device.</span>
+      </div>
+
+      <div class="gate-msg info" style="display:block">
+        💡 Each license key is unique to your Device ID. It cannot be transferred to another device.
+      </div>
+
+      <button class="gate-btn" onclick="switchGateTab('activate')">← I have my key — Activate</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- SUBSCRIPTION STATUS BAR (shown in app after activation) -->
+<div class="sub-status-bar hidden no-print" id="sub-status-bar">
+  <div class="sub-info">
+    <div class="sub-status-dot active" id="sub-dot"></div>
+    <span id="sub-status-text">OptiRx Pro · Licensed</span>
+  </div>
+  <div style="display:flex;align-items:center;gap:0.5rem">
+    <span id="sub-expiry-text" style="color:var(--text3);font-size:0.58rem"></span>
+    <button class="sub-manage-btn" onclick="openLicenseManager()">Manage</button>
+  </div>
+</div>
+
+<!-- LICENSE MANAGER MODAL -->
+<div class="modal-overlay" id="license-modal">
+  <div class="modal-box" style="max-width:460px">
+    <button class="modal-close" onclick="closeModal('license-modal')">✕</button>
+    <div class="modal-title">License Management</div>
+    <div id="license-modal-body" style="display:flex;flex-direction:column;gap:0.85rem;margin-top:0.25rem"></div>
+  </div>
+</div>
+
+
+<!-- PRINT HEADER -->
+<div class="print-only" style="padding:1rem 2rem 0.5rem;font-family:serif;border-bottom:2px solid #000;margin-bottom:1rem;">
+  <div style="font-size:1.3rem;font-weight:bold">OptiRx — Ophthalmology Prescription Report</div>
+  <div style="font-size:0.8rem;color:#555;margin-top:4px">Generated: <span id="print-date"></span> &nbsp;|&nbsp; © Manik Roy <span id="print-year"></span>. All Rights Reserved.</div>
+</div>
+
+<!-- EXPORT MODAL -->
+<div class="modal-overlay" id="share-modal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('share-modal')">✕</button>
+    <div class="modal-title">Export Prescription</div>
+    <div style="display:flex;flex-direction:column;gap:0.65rem">
+      <button class="calc-btn" style="margin-top:0" onclick="doPrint()">🖨 Print / Save as PDF</button>
+      <button class="calc-btn whatsapp" style="margin-top:0" onclick="shareWhatsApp()">💬 Share via WhatsApp</button>
+      <button class="calc-btn secondary" onclick="copyRxText()">📋 Copy as Text</button>
+      <button class="calc-btn secondary" onclick="downloadJSON()">⬇ Download JSON</button>
+      <button class="calc-btn secondary" onclick="closeModal('share-modal');openModal('qr-modal')">⬛ Generate QR Code</button>
+    </div>
+    <div id="copy-confirm" style="display:none;margin-top:0.75rem;font-family:'DM Mono',monospace;font-size:0.68rem;color:var(--success);text-align:center">✓ Copied to clipboard!</div>
+  </div>
+</div>
+
+<!-- QR CODE MODAL -->
+<div class="modal-overlay" id="qr-modal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('qr-modal')">✕</button>
+    <div class="modal-title">QR Code — Prescription</div>
+    <div class="qr-wrap">
+      <canvas id="qr-canvas" class="qr-canvas" width="200" height="200"></canvas>
+      <div style="font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--text2);text-align:center">Scan to view prescription text</div>
+      <button class="calc-btn" style="margin-top:0;width:auto;padding:0.6rem 1.5rem" onclick="downloadQR()">⬇ Download QR</button>
+    </div>
+  </div>
+</div>
+
+<!-- RX COMPARISON MODAL -->
+<div class="modal-overlay" id="compare-modal">
+  <div class="modal-box" style="max-width:520px">
+    <button class="modal-close" onclick="closeModal('compare-modal')">✕</button>
+    <div class="modal-title">Rx Change Comparison</div>
+    <div id="compare-body" style="margin-top:0.5rem"></div>
+  </div>
+</div>
+
+<!-- PRENTICE MODAL -->
+<div class="modal-overlay" id="prentice-modal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('prentice-modal')">✕</button>
+    <div class="modal-title">Prentice's Rule — Prismatic Effect</div>
+    <div style="display:flex;flex-direction:column;gap:0.75rem;margin-top:0.5rem">
+      <div class="field"><label>Lens Power (D)</label><input type="number" id="pr-power" step="0.25" placeholder="-3.00"></div>
+      <div class="field"><label>Decentration (mm)</label><input type="number" id="pr-dec" step="0.5" placeholder="5"></div>
+      <button class="calc-btn" style="margin-top:0" onclick="calcPrentice()">Calculate Prismatic Effect</button>
+      <div id="pr-result" style="display:none;padding:0.75rem;background:var(--badge-bg);border:1px solid var(--accent);border-radius:8px;font-family:'DM Mono',monospace;font-size:0.85rem;color:var(--accent)"></div>
+    </div>
+  </div>
+</div>
+
+<!-- VERTEX DISTANCE MODAL -->
+<div class="modal-overlay" id="vertex-modal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('vertex-modal')">✕</button>
+    <div class="modal-title">Vertex Distance Correction</div>
+    <div style="display:flex;flex-direction:column;gap:0.75rem;margin-top:0.5rem">
+      <div class="field"><label>Spectacle Power (D)</label><input type="number" id="vd-power" step="0.25" placeholder="-8.00"></div>
+      <div class="field"><label>Spectacle Vertex Distance (mm)</label><input type="number" id="vd-spec" step="0.5" value="12" placeholder="12"></div>
+      <div class="field"><label>CL Vertex Distance (mm)</label><input type="number" id="vd-cl" step="0.5" value="0" placeholder="0"></div>
+      <button class="calc-btn" style="margin-top:0" onclick="calcVertex()">Calculate CL Power</button>
+      <div id="vd-result" style="display:none;padding:0.75rem;background:var(--badge-bg);border:1px solid var(--accent);border-radius:8px;font-family:'DM Mono',monospace;font-size:0.85rem;color:var(--accent)"></div>
+    </div>
+  </div>
+</div>
+
+<div class="page-wrap">
+
+  <!-- HEADER -->
+  <header>
+    <div class="logo-block">
+      <div class="logo-eyemark">
+        <svg class="eye-icon" viewBox="0 0 28 28" fill="none">
+          <ellipse cx="14" cy="14" rx="13" ry="8" stroke="var(--accent)" stroke-width="1.6" fill="none"/>
+          <circle cx="14" cy="14" r="4.5" stroke="var(--accent)" stroke-width="1.5" fill="var(--badge-bg)"/>
+          <circle cx="15.5" cy="12.5" r="1.2" fill="var(--accent)" opacity="0.7"/>
+        </svg>
+        <span class="logo-text">Opti<span>Rx</span></span>
+      </div>
+      <div class="logo-sub">Glass Prescription Calculator</div>
+    </div>
+    <div class="theme-cluster">
+      <div class="theme-label">Theme</div>
+      <div class="theme-toggle">
+        <button class="theme-btn" onclick="setTheme('light')">☀ Light</button>
+        <button class="theme-btn active" onclick="setTheme('dark')">◑ Dark</button>
+        <button class="theme-btn" onclick="setTheme('oled')">● OLED</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- NEW F19: PWA INSTALL BANNER -->
+  <div class="pwa-banner no-print hidden" id="pwa-banner">
+    <div class="pwa-banner-text">📱 <strong>Install OptiRx</strong> as an app on your device for offline use in clinic.</div>
+    <button class="pwa-banner-btn" onclick="installPWA()">Install</button>
+  </div>
+
+  <!-- NEW F18: ACCESSIBILITY + TOOLS BAR -->
+  <div class="card no-print" style="padding:0.85rem 1.25rem">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.6rem">
+      <span style="font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--text3);text-transform:uppercase;letter-spacing:.1em">Quick Tools</span>
+      <div style="display:flex;gap:0.4rem;flex-wrap:wrap">
+        <button class="mpill" onclick="openModal('vertex-modal')">Vertex Dist.</button>
+        <button class="mpill" onclick="openModal('prentice-modal')">Prentice Rule</button>
+        <button class="mpill" onclick="openModal('compare-modal');buildCompareModal()">Rx Compare</button>
+        <button class="mpill" id="fs-btn" onclick="toggleFontSize()">A+ Large Text</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PATIENT INFO -->
+  <div class="card no-print">
+    <div class="card-header" style="margin-bottom:0.75rem">
+      <div class="card-pill">👤 Patient</div>
+      <div class="card-title">Patient Information</div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>Patient Name</label><input type="text" id="patient-name" placeholder="e.g. Riya Sharma"></div>
+      <div class="field"><label>Date of Birth</label><input type="date" id="patient-dob" onchange="checkPresby()"></div>
+    </div>
+    <div class="field-row" style="margin-top:0.75rem">
+      <div class="field"><label>Exam Date</label><input type="date" id="exam-date" onchange="checkExpiry()"></div>
+      <div class="field"><label>Prescriber</label><input type="text" id="prescriber" placeholder="Dr. / Optometrist"></div>
+    </div>
+    <div class="field-row" style="margin-top:0.75rem">
+      <div class="field"><label>Clinic / Hospital</label><input type="text" id="clinic-name" placeholder="Clinic or hospital name"></div>
+      <div class="field"><label>Contact / Phone</label><input type="text" id="clinic-phone" placeholder="Patient phone"></div>
+    </div>
+    <!-- NEW F20: RX EXPIRY -->
+    <div id="presby-banner" style="display:none;margin-top:0.75rem"></div>
+    <div id="expiry-banner" style="display:none;margin-top:0.5rem"></div>
+    <div class="field" style="margin-top:0.75rem">
+      <label>Clinical Notes</label>
+      <textarea class="notes-textarea" id="clinical-notes" placeholder="Diagnoses, follow-up, special instructions…"></textarea>
+    </div>
+  </div>
+
+  <!-- EYE TABS -->
+  <div class="eye-tabs no-print">
+    <div class="eye-tab active" id="tab-od" onclick="switchEye('OD')">
+      <div class="eye-tab-label">Right Eye</div>
+      <div class="eye-tab-name">OD</div>
+    </div>
+    <div class="eye-tab" id="tab-os" onclick="switchEye('OS')">
+      <div class="eye-tab-label">Left Eye</div>
+      <div class="eye-tab-name">OS</div>
+    </div>
+  </div>
+
+  <!-- INPUT CARD -->
+  <div class="card no-print">
+    <div class="card-header">
+      <div class="card-pill">
+        <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><circle cx="5" cy="5" r="4" stroke="currentColor" stroke-width="1.3"/><circle cx="5" cy="5" r="1.8" fill="currentColor"/></svg>
+        Rx Entry
+      </div>
+      <div class="card-title" id="entry-title">Right Eye — OD</div>
+    </div>
+    <div class="rx-form">
+
+      <div class="field-row">
+        <div class="field">
+          <label><abbr title="Sphere — corrects myopia (−) or hyperopia (+)">SPH</abbr> (D)</label>
+          <input type="number" id="sph" step="0.25" min="-30" max="30" placeholder="+0.00">
+          <span class="hint">−30.00 to +30.00</span>
+        </div>
+        <div class="field">
+          <label><abbr title="Cylinder — corrects astigmatism">CYL</abbr> (D)</label>
+          <input type="number" id="cyl" step="0.25" min="-10" max="10" placeholder="0.00">
+          <span class="hint">−10.00 to +10.00</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label><abbr title="Axis — orientation of cylinder (1°–180°)">AXIS</abbr></label>
+        <div class="range-row">
+          <input type="range" id="axis-range" min="1" max="180" value="90" oninput="syncAxis(this.value)">
+          <span class="range-val" id="axis-display">90°</span>
+        </div>
+        <input type="number" id="axis" step="1" min="1" max="180" value="90" oninput="syncAxisRange(this.value)">
+        <span class="hint">1° – 180°</span>
+      </div>
+
+      <hr class="divider">
+      <div class="section-heading">Visual Acuity</div>
+      <div class="field-row">
+        <div class="field">
+          <label><abbr title="Uncorrected Visual Acuity">UCVA</abbr></label>
+          <select id="va-uncorr">
+            <option value="">— Select —</option>
+            <option>20/20</option><option>20/25</option><option>20/30</option><option>20/40</option>
+            <option>20/50</option><option>20/70</option><option>20/100</option><option>20/200</option>
+            <option>20/400</option><option>CF</option><option>HM</option><option>LP</option><option>NLP</option>
+          </select>
+        </div>
+        <div class="field">
+          <label><abbr title="Best Corrected Visual Acuity">BCVA</abbr></label>
+          <select id="va-corr">
+            <option value="">— Select —</option>
+            <option>20/20</option><option>20/25</option><option>20/30</option><option>20/40</option>
+            <option>20/50</option><option>20/70</option><option>20/100</option><option>20/200</option>
+            <option>20/400</option><option>CF</option><option>HM</option><option>LP</option><option>NLP</option>
+          </select>
+        </div>
+      </div>
+
+      <hr class="divider">
+      <div class="section-heading">NEW F15 — Monocular PD</div>
+      <div class="field-row three">
+        <div class="field">
+          <label>OD PD (mm)</label>
+          <input type="number" id="pd-od" step="0.5" min="20" max="45" placeholder="31.5">
+          <span class="hint">Right half PD</span>
+        </div>
+        <div class="field">
+          <label>OS PD (mm)</label>
+          <input type="number" id="pd-os" step="0.5" min="20" max="45" placeholder="31.5">
+          <span class="hint">Left half PD</span>
+        </div>
+        <div class="field">
+          <label>Total PD (mm)</label>
+          <input type="number" id="pd" step="0.5" min="45" max="80" placeholder="63.0" oninput="splitPD(this.value)">
+          <span class="hint">Or enter total</span>
+        </div>
+      </div>
+
+      <hr class="divider">
+
+      <div class="field-row">
+        <div class="field">
+          <label><abbr title="Near Addition for presbyopia">ADD</abbr> (D)</label>
+          <input type="number" id="add" step="0.25" min="0" max="4" placeholder="+0.00">
+          <span class="hint">0.00 – +4.00</span>
+        </div>
+        <div class="field">
+          <label><abbr title="Reading / working distance">Reading Dist.</abbr> (cm)</label>
+          <input type="number" id="read-dist" step="5" min="20" max="100" placeholder="40">
+          <span class="hint">e.g. 33cm = 3D ADD</span>
+        </div>
+      </div>
+
+      <!-- NEW F16: IOP & COLOUR VISION -->
+      <hr class="divider">
+      <div class="section-heading">Clinical Findings</div>
+      <div class="field-row">
+        <div class="field">
+          <label><abbr title="Intraocular Pressure — normal range 10–21 mmHg">IOP</abbr> (mmHg)</label>
+          <input type="number" id="iop" step="0.5" min="0" max="80" placeholder="14">
+          <span class="hint">Normal: 10–21 mmHg</span>
+        </div>
+        <div class="field">
+          <label><abbr title="Colour Vision — Ishihara test result">Colour Vision</abbr></label>
+          <select id="colour-vision">
+            <option value="">— Not tested —</option>
+            <option value="normal">Normal</option>
+            <option value="mild">Mild Deficiency</option>
+            <option value="moderate">Moderate Deficiency</option>
+            <option value="severe">Severe / Dichromacy</option>
+            <option value="achromatopsia">Achromatopsia</option>
+          </select>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label><abbr title="Pupil size affects aberration and night vision">Pupil Size</abbr> (mm)</label>
+          <input type="number" id="pupil-size" step="0.5" min="1" max="9" placeholder="3.5">
+          <span class="hint">Photopic / Mesopic</span>
+        </div>
+        <div class="field">
+          <label><abbr title="Cover test result for binocular alignment">Cover Test</abbr></label>
+          <select id="cover-test">
+            <option value="">— Not tested —</option>
+            <option value="ortho">Orthophoria</option>
+            <option value="esophoria">Esophoria</option>
+            <option value="exophoria">Exophoria</option>
+            <option value="hyperphoria">Hyperphoria</option>
+            <option value="esotropia">Esotropia</option>
+            <option value="exotropia">Exotropia</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label>Seg Height (mm)</label>
+          <input type="number" id="seg-height" step="0.5" min="10" max="45" placeholder="e.g. 22">
+          <span class="hint">Bifocal / Progressive</span>
+        </div>
+        <div class="field">
+          <label>Frame B (mm)</label>
+          <input type="number" id="frame-b" step="0.5" min="20" max="60" placeholder="e.g. 42">
+          <span class="hint">Vertical lens height</span>
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label>Prism (Δ)</label>
+          <input type="number" id="prism" step="0.25" min="0" max="20" placeholder="0.00">
+        </div>
+        <div class="field">
+          <label>Base Direction</label>
+          <select id="base-dir">
+            <option value="">— None —</option>
+            <option value="BI">BI — Base In</option>
+            <option value="BO">BO — Base Out</option>
+            <option value="BU">BU — Base Up</option>
+            <option value="BD">BD — Base Down</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Lens Type</label>
+        <select id="lens-type">
+          <option value="distance">Distance Only</option>
+          <option value="near">Near Only / Reading</option>
+          <option value="bifocal">Bifocal</option>
+          <option value="progressive">Progressive / No-Line</option>
+          <option value="single">Single Vision</option>
+          <option value="occupational">Occupational (Computer)</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Lens Material</label>
+        <select id="lens-material">
+          <option value="auto">✦ Auto-Recommend by Rx</option>
+          <option value="cr39">CR-39 Standard (1.50)</option>
+          <option value="poly">Polycarbonate (1.59)</option>
+          <option value="hi155">Hi-Index 1.55</option>
+          <option value="hi160">Hi-Index 1.60</option>
+          <option value="hi167">Hi-Index 1.67</option>
+          <option value="hi174">Hi-Index 1.74 Ultra-Thin</option>
+          <option value="trivex">Trivex</option>
+          <option value="glass">Optical Glass</option>
+        </select>
+      </div>
+    </div>
+    <div style="margin-top:1rem"><button class="calc-btn secondary" onclick="copyToOther()">⇆ Copy to Other Eye</button></div>
+  </div>
+
+  <button class="calc-btn no-print" onclick="calculate()">
+    <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><rect x="2" y="2" width="11" height="11" rx="1" stroke="white" stroke-width="1.3"/><path d="M5 7.5h5M7.5 5v5" stroke="white" stroke-width="1.3" stroke-linecap="round"/></svg>
+    Calculate Prescription
+  </button>
+
+  <!-- RESULTS -->
+  <div class="results-card hidden" id="results-card">
+    <div class="results-header">
+      <div class="results-title">Prescription Summary</div>
+      <div style="display:flex;gap:0.4rem;align-items:center;flex-wrap:wrap">
+        <div class="results-badge">Calculated</div>
+        <button onclick="saveToHistory()" class="mpill green no-print">+ Save</button>
+        <button onclick="openModal('share-modal')" class="mpill no-print">⬆ Export</button>
+      </div>
+    </div>
+    <div class="results-body" id="results-body"></div>
+  </div>
+
+  <!-- F5: ANISOMETROPIA -->
+  <div class="card hidden" id="aniso-card">
+    <div class="card-header" style="margin-bottom:0.5rem"><div class="card-pill">⚖ Aniso</div><div class="card-title">Anisometropia Check</div></div>
+    <div id="aniso-body"></div>
+  </div>
+
+  <!-- F4: CONTACT LENS -->
+  <div class="card hidden" id="cl-card">
+    <div class="card-header" style="margin-bottom:0.5rem"><div class="card-pill">👁 CL</div><div class="card-title">Contact Lens Conversion</div></div>
+    <div id="cl-body"></div>
+  </div>
+
+  <!-- F6: LENS MATERIAL -->
+  <div class="card hidden" id="material-card">
+    <div class="card-header" style="margin-bottom:0.5rem"><div class="card-pill">💎 Material</div><div class="card-title">Lens Material Recommendation</div></div>
+    <div id="material-body"></div>
+  </div>
+
+  <!-- NEW F17: ACCOMMODATION AMPLITUDE -->
+  <div class="card hidden" id="accomm-card">
+    <div class="card-header" style="margin-bottom:0.5rem"><div class="card-pill">🔭 Accomm.</div><div class="card-title">Accommodation Amplitude</div></div>
+    <div id="accomm-body"></div>
+  </div>
+
+  <!-- NEW F16: IOP / CLINICAL FLAGS -->
+  <div class="card hidden" id="clinical-card">
+    <div class="card-header" style="margin-bottom:0.5rem"><div class="card-pill">🩺 Clinical</div><div class="card-title">Clinical Findings Summary</div></div>
+    <div id="clinical-body"></div>
+  </div>
+
+  <!-- REFERENCE GUIDE -->
+  <div style="display:flex;justify-content:center" class="no-print">
+    <button class="info-toggle" onclick="toggleInfo()">▿ Lens Reference Guide</button>
+  </div>
+  <div class="info-panel no-print" id="info-panel">
+    <div class="info-inner">
+      <div class="info-title">Ophthalmic Terminology</div>
+      <div class="info-item"><div class="info-term">SPH</div><div class="info-def">Sphere — main lens power. Negative (−) corrects myopia; positive (+) corrects hyperopia. In diopters (D).</div></div>
+      <div class="info-item"><div class="info-term">CYL</div><div class="info-def">Cylinder — corrects astigmatism. Usually written as negative in minus-cylinder notation.</div></div>
+      <div class="info-item"><div class="info-term">AXIS</div><div class="info-def">Orientation of the cylinder correction, 1°–180°. Only meaningful when CYL ≠ 0.</div></div>
+      <div class="info-item"><div class="info-term">ADD</div><div class="info-def">Near Addition — extra plus power for presbyopic reading. Typically +0.75 to +3.50 D.</div></div>
+      <div class="info-item"><div class="info-term">SE</div><div class="info-def">Spherical Equivalent = SPH + (CYL ÷ 2). Summarises total refractive power for CL fitting.</div></div>
+      <div class="info-item"><div class="info-term">Prism Δ</div><div class="info-def">Prismatic correction in prism diopters (Δ). Compensates for eye misalignment.</div></div>
+      <div class="info-item"><div class="info-term">Vertex Dist.</div><div class="info-def">Distance from back of lens to cornea (~12mm). Affects effective power for Rx > ±4D. Critical for CL conversion.</div></div>
+      <div class="info-item"><div class="info-term">Prentice Rule</div><div class="info-def">Prismatic Effect (Δ) = Power (D) × Decentration (cm). Used to calculate unwanted prism from off-centre lenses.</div></div>
+      <div class="info-item"><div class="info-term">Anisometropia</div><div class="info-def">Significant SE difference between eyes. >1D may cause binocular issues; >2.5D needs specialist assessment.</div></div>
+      <div class="info-item"><div class="info-term">IOP</div><div class="info-def">Intraocular Pressure. Normal range: 10–21 mmHg. Elevated IOP is a key glaucoma risk factor.</div></div>
+      <div class="info-item"><div class="info-term">Accommodation</div><div class="info-def">The eye's ability to change focus. Amplitude = max power of focus change. Declines with age (presbyopia).</div></div>
+      <div class="info-item"><div class="info-term">Monocular PD</div><div class="info-def">Per-eye pupillary distance measured from nose centre to each pupil. More accurate than total PD for lens centration.</div></div>
+      <div class="info-item"><div class="info-term">VA (20/x)</div><div class="info-def">Visual Acuity. 20/20 is normal. 20/40 means the patient must be at 20ft to see what a normal eye sees at 40ft.</div></div>
+      <div class="info-item"><div class="info-term">OD / OS / OU</div><div class="info-def">OD = Right Eye. OS = Left Eye. OU = Both Eyes.</div></div>
+    </div>
+  </div>
+
+  <!-- F3: HISTORY -->
+  <div class="card no-print">
+    <div class="card-header" style="margin-bottom:0.5rem"><div class="card-pill">📂 History</div><div class="card-title">Saved Prescriptions</div></div>
+    <div class="history-list" id="history-list">
+      <div class="history-empty">No saved prescriptions yet.<br>Calculate and tap <strong>+ Save</strong> to store.</div>
+    </div>
+    <div style="display:flex;gap:0.5rem;margin-top:0.75rem">
+      <button class="calc-btn secondary" onclick="clearHistory()" style="font-size:0.7rem;padding:0.6rem">✕ Clear All</button>
+    </div>
+  </div>
+
+  <button class="calc-btn secondary no-print" onclick="resetAll()">↺ Reset All Fields</button>
+
+  <!-- DISCLAIMER -->
+  <div class="disclaimer-box no-print">
+    <div class="disclaimer-header">
+      <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M7.5 1.5a6 6 0 1 0 0 12 6 6 0 0 0 0-12zm0 3.25v3.5m0 1.5v.5" stroke="var(--accent3)" stroke-width="1.4" stroke-linecap="round"/></svg>
+      Medical Disclaimer
+    </div>
+    <div class="disclaimer-body">
+      <p><strong>OptiRx is an educational and clinical reference tool only.</strong> It is not a substitute for a comprehensive eye examination, professional clinical judgement, or a valid prescription issued by a licensed optometrist or ophthalmologist.</p>
+      <p>All calculations, recommendations, scores, and clinical flags generated by this application are <strong>indicative only</strong> and must be verified by a qualified eye care professional before any clinical decision, lens dispensing, or patient management action is taken.</p>
+      <p>Prescription values, contact lens conversions, vertex distance corrections, accommodation estimates, and material recommendations are based on standard optical formulae and population norms — they may not account for individual patient anatomy, pathology, or clinical history.</p>
+      <p><strong>Do not use this tool as the sole basis for prescribing, dispensing, or clinical diagnosis.</strong> Always conduct a thorough patient history, slit-lamp examination, and refraction before issuing any optical prescription.</p>
+      <p>By using OptiRx, you acknowledge that <strong>Manik Roy</strong> and the creators of this tool accept no liability for any clinical outcome, loss, or harm arising from reliance on outputs generated by this application.</p>
+    </div>
+    <div class="disclaimer-footer">
+      <span>⚕ For professional use — always exercise independent clinical judgement</span>
+      <button class="disclaimer-dismiss" onclick="dismissDisclaimer()">I Understand</button>
+    </div>
+  </div>
+
+  <!-- DISCLAIMER COMPACT (after dismiss) -->
+  <div class="disclaimer-compact hidden" id="disclaimer-compact">
+    <svg width="12" height="12" viewBox="0 0 15 15" fill="none"><path d="M7.5 1.5a6 6 0 1 0 0 12 6 6 0 0 0 0-12zm0 3.25v3.5m0 1.5v.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+    Educational tool only — not a substitute for professional clinical examination.
+    <button onclick="expandDisclaimer()" style="background:none;border:none;color:var(--accent);font-family:'DM Mono',monospace;font-size:0.58rem;cursor:pointer;padding:0;text-decoration:underline;letter-spacing:0.06em">Read full disclaimer</button>
+  </div>
+
+</div><!-- /page-wrap -->
+
+<footer>
+  <div class="footer-copy">© <strong>Manik Roy</strong> <span id="footer-year"></span>. All Rights Reserved.</div>
+  <div class="footer-sub">OptiRx · Glass Prescription Calculator · Ophthalmology Tool</div>
+  <div class="footer-disclaimer-line">For educational &amp; professional reference use only · Not for clinical diagnosis</div>
+</footer>
+
+<script>
+// ═══════════════════════════════════
+
+// ═══════════════════════════════════════════════════════════════
+// OPTIRX LICENSING ENGINE
+// Machine-ID based subscription — ₹599/month per device
+// © Manik Roy 2026. All Rights Reserved.
+// ═══════════════════════════════════════════════════════════════
+
+const LICENSE = (() => {
+
+  // ── VENDOR CONFIG (edit these before distribution) ──────────
+  const VENDOR = {
+    name:    'Manik Roy',
+    email:   'manikroy@email.com',        // ← change to your email
+    whatsapp:'919800000000',              // ← change to your WA number
+    upi:     'manikroy@upi',             // ← change to your UPI ID
+    price:   599,
+    currency:'₹',
+    period:  'month',
+    appName: 'OptiRx',
+    secret:  'OPTIRX2026MANIKROY',       // ← secret salt for key generation
+  };
+
+  // ── STORAGE KEYS ────────────────────────────────────────────
+  const KEYS = {
+    license:   'optirx_license_v1',
+    machineId: 'optirx_machine_id',
+    trialStart:'optirx_trial_start',
+  };
+
+  // ── TRIAL PERIOD ────────────────────────────────────────────
+  const TRIAL_DAYS = 7;
+  const LICENSE_DAYS = 30;
+
+  // ── MACHINE ID GENERATION ───────────────────────────────────
+  // Combines browser fingerprint signals available client-side
+  function generateMachineId() {
+    const stored = localStorage.getItem(KEYS.machineId);
+    if (stored) return stored;
+
+    const nav = window.navigator;
+    const scr = window.screen;
+
+    // Collect stable device signals
+    const signals = [
+      nav.userAgent,
+      nav.language,
+      nav.platform || nav.userAgentData?.platform || '',
+      String(scr.width),
+      String(scr.height),
+      String(scr.colorDepth),
+      String(nav.hardwareConcurrency || 0),
+      String(nav.deviceMemory || 0),
+      Intl.DateTimeFormat().resolvedOptions().timeZone,
+      nav.userAgentData?.brands?.map(b => b.brand).join(',') || '',
+    ].join('|');
+
+    // Simple but collision-resistant hash
+    const id = 'MID-' + hashStr(signals + VENDOR.secret).toUpperCase();
+    localStorage.setItem(KEYS.machineId, id);
+    return id;
+  }
+
+  // ── STRING HASH (DJB2 variant, hex output) ───────────────────
+  function hashStr(str) {
+    let h1 = 0xdeadbeef, h2 = 0x41c6ce57;
+    for (let i = 0; i < str.length; i++) {
+      const ch = str.charCodeAt(i);
+      h1 = Math.imul(h1 ^ ch, 2654435761);
+      h2 = Math.imul(h2 ^ ch, 1597334677);
+    }
+    h1 = Math.imul(h1 ^ (h1>>>16), 2246822507) ^ Math.imul(h2 ^ (h2>>>13), 3266489909);
+    h2 = Math.imul(h2 ^ (h2>>>16), 2246822507) ^ Math.imul(h1 ^ (h1>>>13), 3266489909);
+    return (4294967296 * (2097151 & h2) + (h1>>>0)).toString(16).padStart(16,'0');
+  }
+
+  // ── LICENSE KEY FORMAT ───────────────────────────────────────
+  // Format: OPTIRX-XXXX-XXXX-XXXX-XXXX
+  // Where segments encode: machineId hash + expiry date + checksum
+  //
+  // KEY GENERATION (run this in your admin tool / server):
+  //   generateLicenseKey(machineId, validDays, vendorSecret)
+  //
+  // KEY VALIDATION (client-side, no server needed):
+  //   validateKey(key, machineId) → { valid, daysLeft, expiry }
+
+  function generateLicenseKey(machineId, validDays, secret) {
+    const expiry = Date.now() + validDays * 86400000;
+    const expiryHex = Math.floor(expiry / 1000).toString(16).padStart(8, '0');
+    const machineHash = hashStr(machineId + secret).slice(0, 8).toUpperCase();
+    const payload = hashStr(machineId + expiryHex + secret).slice(0, 8).toUpperCase();
+    const checksum = hashStr(machineHash + expiryHex + payload + secret).slice(0, 4).toUpperCase();
+    const raw = (machineHash + expiryHex + payload + checksum).toUpperCase();
+    // Format into groups of 4
+    const segments = raw.match(/.{1,4}/g).slice(0, 4).join('-');
+    return 'OPTIRX-' + segments;
+  }
+
+  function validateKey(key, machineId) {
+    if (!key || !machineId) return { valid: false, reason: 'Missing key or device ID' };
+    const clean = key.replace(/[^A-F0-9]/gi, '').toUpperCase();
+    if (clean.length < 28) return { valid: false, reason: 'Key too short — invalid format' };
+
+    const machineHash = hashStr(machineId + VENDOR.secret).slice(0, 8).toUpperCase();
+    const keyMachineHash = clean.slice(0, 8);
+
+    // Check machine binding
+    if (keyMachineHash !== machineHash) {
+      return { valid: false, reason: 'This key is not valid for this device. Each key is device-specific.' };
+    }
+
+    // Decode expiry
+    const expiryHex = clean.slice(8, 16);
+    const expiryTs = parseInt(expiryHex, 16) * 1000;
+    const payload = clean.slice(16, 24);
+    const checksum = clean.slice(24, 28);
+
+    // Verify payload integrity
+    const expectedPayload = hashStr(machineId + expiryHex + VENDOR.secret).slice(0, 8).toUpperCase();
+    if (payload !== expectedPayload) {
+      return { valid: false, reason: 'Key integrity check failed — key may be tampered.' };
+    }
+
+    // Verify checksum
+    const expectedCheck = hashStr(machineHash + expiryHex + payload + VENDOR.secret).slice(0, 4).toUpperCase();
+    if (checksum !== expectedCheck) {
+      return { valid: false, reason: 'Invalid checksum — key corrupted or forged.' };
+    }
+
+    // Check expiry
+    const now = Date.now();
+    if (expiryTs < now) {
+      const daysExpired = Math.ceil((now - expiryTs) / 86400000);
+      return { valid: false, expired: true, reason: `License expired ${daysExpired} day(s) ago. Please renew.`, expiry: new Date(expiryTs) };
+    }
+
+    const daysLeft = Math.ceil((expiryTs - now) / 86400000);
+    return { valid: true, daysLeft, expiry: new Date(expiryTs) };
+  }
+
+  // ── TRIAL MANAGEMENT ─────────────────────────────────────────
+  function getTrialStatus() {
+    let start = localStorage.getItem(KEYS.trialStart);
+    if (!start) {
+      start = Date.now().toString();
+      localStorage.setItem(KEYS.trialStart, start);
+    }
+    const elapsed = (Date.now() - parseInt(start)) / 86400000;
+    const daysLeft = Math.max(0, TRIAL_DAYS - Math.floor(elapsed));
+    return { active: daysLeft > 0, daysLeft, elapsed };
+  }
+
+  // ── STORED LICENSE ────────────────────────────────────────────
+  function getStoredLicense() {
+    try { return JSON.parse(localStorage.getItem(KEYS.license) || 'null'); }
+    catch(e) { return null; }
+  }
+  function storeLicense(key, result) {
+    localStorage.setItem(KEYS.license, JSON.stringify({
+      key, expiry: result.expiry.toISOString(), daysLeft: result.daysLeft, activatedAt: new Date().toISOString()
+    }));
+  }
+  function revokeLicense() {
+    localStorage.removeItem(KEYS.license);
+  }
+
+  // ── GATE CONTROL ──────────────────────────────────────────────
+  function checkAccess() {
+    const machineId = generateMachineId();
+    const stored = getStoredLicense();
+
+    // Validate stored license
+    if (stored && stored.key) {
+      const result = validateKey(stored.key, machineId);
+      if (result.valid) return { granted: true, mode: 'licensed', daysLeft: result.daysLeft, expiry: result.expiry, machineId };
+      if (result.expired) return { granted: false, mode: 'expired', reason: result.reason, machineId };
+    }
+
+    // Trial mode
+    const trial = getTrialStatus();
+    if (trial.active) return { granted: true, mode: 'trial', daysLeft: trial.daysLeft, machineId };
+
+    // Trial expired, no valid license
+    return { granted: false, mode: 'expired-trial', reason: 'Your 7-day trial has ended. Please subscribe to continue.', machineId };
+  }
+
+  return { generateMachineId, generateLicenseKey, validateKey, getTrialStatus, getStoredLicense, storeLicense, revokeLicense, checkAccess, VENDOR, TRIAL_DAYS, LICENSE_DAYS };
+})();
+
+// ═══════════════════════════════════════════════════
+// GATE UI CONTROLLER
+// ═══════════════════════════════════════════════════
+
+function initLicenseGate() {
+  const access = LICENSE.checkAccess();
+  const mid = access.machineId;
+
+  // Populate machine ID displays
+  document.getElementById('machine-id-display').textContent = mid;
+  document.getElementById('machine-id-display-2').textContent = mid;
+
+  // Update vendor contact info
+  const v = LICENSE.VENDOR;
+  const emailEl = document.getElementById('contact-email');
+  const waEl    = document.getElementById('contact-wa');
+  const upiEl   = document.getElementById('upi-id-display');
+  if(emailEl){ emailEl.textContent = v.email; emailEl.href = 'mailto:' + v.email; }
+  if(waEl){ waEl.href = 'https://wa.me/' + v.whatsapp; waEl.textContent = 'WhatsApp: +' + v.whatsapp; }
+  if(upiEl){ upiEl.textContent = v.upi; }
+
+  if (access.granted) {
+    // Unlock the app
+    document.getElementById('license-gate').classList.add('hidden');
+    showSubStatusBar(access);
+  } else {
+    // Show gate
+    document.getElementById('license-gate').classList.remove('hidden');
+    // Show expired message if applicable
+    if (access.mode === 'expired' || access.mode === 'expired-trial') {
+      showGateMsg('activate-msg', access.reason, 'error');
+    }
+    // Trial mode info
+    if (access.mode === 'trial') {
+      document.getElementById('license-gate').classList.add('hidden');
+      showSubStatusBar(access);
+    }
+  }
+}
+
+function showSubStatusBar(access) {
+  const bar = document.getElementById('sub-status-bar');
+  const dot = document.getElementById('sub-dot');
+  const statusText = document.getElementById('sub-status-text');
+  const expiryText = document.getElementById('sub-expiry-text');
+
+  bar.classList.remove('hidden');
+  bar.style.display = '';
+
+  if (access.mode === 'licensed') {
+    dot.className = 'sub-status-dot active';
+    bar.className = 'sub-status-bar no-print';
+    statusText.textContent = 'OptiRx Pro · Licensed';
+    expiryText.textContent = access.daysLeft <= 7
+      ? '⚠ Expires in ' + access.daysLeft + ' days'
+      : 'Valid for ' + access.daysLeft + ' days';
+    if (access.daysLeft <= 7) bar.classList.add('trial');
+  } else if (access.mode === 'trial') {
+    dot.className = 'sub-status-dot trial';
+    bar.className = 'sub-status-bar trial no-print';
+    statusText.textContent = 'Trial Mode · ' + access.daysLeft + ' day(s) remaining';
+    expiryText.textContent = 'Subscribe to unlock full access';
+  }
+}
+
+function switchGateTab(tab) {
+  document.querySelectorAll('.gate-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.gate-panel').forEach(p => p.classList.remove('active'));
+  const idx = tab === 'activate' ? 0 : 1;
+  document.querySelectorAll('.gate-tab')[idx].classList.add('active');
+  document.getElementById('panel-' + tab).classList.add('active');
+}
+
+function formatLicenseKey(input) {
+  let val = input.value.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+  // Remove OPTIRX prefix if typed
+  val = val.replace(/^OPTIRX/i, '');
+  // Group into 4-char chunks
+  const chunks = val.match(/.{1,4}/g) || [];
+  const formatted = 'OPTIRX-' + chunks.slice(0, 4).join('-');
+  input.value = formatted.slice(0, 29);
+  input.classList.remove('error');
+  clearGateMsg('activate-msg');
+}
+
+function copyMachineId() {
+  const mid = LICENSE.generateMachineId();
+  navigator.clipboard.writeText(mid).then(() => {
+    document.querySelectorAll('.machine-id-copy').forEach(b => {
+      b.textContent = 'Copied!';
+      setTimeout(() => b.textContent = 'Copy', 2000);
+    });
+  });
+}
+
+function activateLicense() {
+  const keyInput = document.getElementById('license-key-input');
+  const key = keyInput.value.trim();
+  const mid = LICENSE.generateMachineId();
+
+  if (!key || key.length < 20) {
+    keyInput.classList.add('error');
+    showGateMsg('activate-msg', '⚠ Please enter a valid license key.', 'error');
+    return;
+  }
+
+  const result = LICENSE.validateKey(key, mid);
+
+  if (result.valid) {
+    LICENSE.storeLicense(key, result);
+    showGateMsg('activate-msg', '✓ License activated! Welcome to OptiRx Pro.', 'success');
+    setTimeout(() => {
+      document.getElementById('license-gate').classList.add('hidden');
+      showSubStatusBar({ mode: 'licensed', daysLeft: result.daysLeft, expiry: result.expiry });
+      showToast('OptiRx Pro activated — ' + result.daysLeft + ' days remaining!', 'var(--success)');
+    }, 1200);
+  } else {
+    keyInput.classList.add('error');
+    showGateMsg('activate-msg', '✗ ' + result.reason, 'error');
+  }
+}
+
+function showGateMsg(id, msg, type) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.textContent = msg;
+  el.className = 'gate-msg ' + type;
+}
+function clearGateMsg(id) {
+  const el = document.getElementById(id);
+  if (el) { el.className = 'gate-msg'; el.textContent = ''; }
+}
+
+function openLicenseManager() {
+  const access = LICENSE.checkAccess();
+  const stored = LICENSE.getStoredLicense();
+  const body = document.getElementById('license-modal-body');
+
+  let html = '';
+
+  // Machine ID
+  html += '<div class="machine-id-box"><div class="machine-id-label">Device ID (Machine ID)</div>';
+  html += '<div class="machine-id-value">' + access.machineId + '</div>';
+  html += '<button class="machine-id-copy" onclick="copyMachineId()">Copy</button></div>';
+
+  // License status
+  if (access.mode === 'licensed' && stored) {
+    const exp = new Date(stored.expiry).toLocaleDateString('en-IN', {day:'2-digit',month:'long',year:'numeric'});
+    html += '<div class="alert-strip good">✓ Active License · Expires ' + exp + ' · ' + access.daysLeft + ' days remaining</div>';
+    html += '<div class="gate-field"><label class="gate-label">Active Key</label>';
+    html += '<input class="gate-input" value="' + stored.key + '" readonly style="font-size:0.7rem;letter-spacing:0.08em;opacity:0.7"></div>';
+    html += '<button class="gate-btn secondary" onclick="revokeAndReload()" style="margin-top:0">✕ Revoke License</button>';
+  } else if (access.mode === 'trial') {
+    html += '<div class="alert-strip">⏳ Trial Mode · ' + access.daysLeft + ' day(s) remaining</div>';
+  } else {
+    html += '<div class="alert-strip">✗ No active license</div>';
+  }
+
+  // Renewal info
+  html += '<div class="gate-contact"><strong>Renew / New Device License:</strong><br>';
+  html += '₹599/month · Contact: <a href="mailto:' + LICENSE.VENDOR.email + '">' + LICENSE.VENDOR.email + '</a><br>';
+  html += '<a href="https://wa.me/' + LICENSE.VENDOR.whatsapp + '" target="_blank">WhatsApp: +' + LICENSE.VENDOR.whatsapp + '</a></div>';
+
+  // Activate new key
+  html += '<div class="gate-field"><label class="gate-label">Enter New Key</label>';
+  html += '<input class="gate-input" id="modal-key-input" type="text" placeholder="OPTIRX-XXXX-XXXX-XXXX-XXXX" maxlength="29" oninput="formatModalKey(this)" spellcheck="false"></div>';
+  html += '<div class="gate-msg" id="modal-key-msg"></div>';
+  html += '<button class="gate-btn" onclick="activateModalKey()" style="margin-top:0">🔑 Activate New Key</button>';
+
+  body.innerHTML = html;
+  openModal('license-modal');
+}
+
+function formatModalKey(input) {
+  let val = input.value.replace(/[^A-Za-z0-9]/g,'').toUpperCase().replace(/^OPTIRX/,'');
+  input.value = ('OPTIRX-' + (val.match(/.{1,4}/g)||[]).slice(0,4).join('-')).slice(0,29);
+}
+
+function revokeAndReload(){
+  if(confirm('Revoke this license? You will need to re-enter a key to continue.')){
+    LICENSE.revokeLicense();
+    location.reload();
+  }
+}
+function activateModalKey() {
+  const input = document.getElementById('modal-key-input');
+  const key = (input||{}).value || '';
+  const mid = LICENSE.generateMachineId();
+  const result = LICENSE.validateKey(key, mid);
+  const msgEl = document.getElementById('modal-key-msg');
+  if (result.valid) {
+    LICENSE.storeLicense(key, result);
+    if(msgEl){ msgEl.textContent = '✓ Activated! ' + result.daysLeft + ' days remaining.'; msgEl.className = 'gate-msg success'; }
+    setTimeout(() => { closeModal('license-modal'); initLicenseGate(); }, 1500);
+  } else {
+    if(msgEl){ msgEl.textContent = '✗ ' + result.reason; msgEl.className = 'gate-msg error'; }
+  }
+}
+
+// ═══════════════════════════════════════════════════
+// ADMIN KEY GENERATOR (run in browser console)
+// Usage: LICENSE.generateLicenseKey(machineId, 30, LICENSE.VENDOR.secret)
+// ═══════════════════════════════════════════════════
+
+// Expose to console for vendor use
+window.AdminTool = {
+  generateKey: (machineId, days) => {
+    const key = LICENSE.generateLicenseKey(machineId, days || 30, LICENSE.VENDOR.secret);
+    console.log('%c OptiRx License Key Generated ', 'background:#58a6ff;color:#fff;font-weight:bold;padding:4px 8px;border-radius:4px');
+    console.log('Machine ID:', machineId);
+    console.log('Key:', key);
+    console.log('Valid days:', days || 30);
+    return key;
+  },
+  validateKey: (key, machineId) => LICENSE.validateKey(key, machineId),
+  listLicenses: () => console.table([LICENSE.getStoredLicense()]),
+};
+
+console.log('%c OptiRx Admin Tool loaded. Use AdminTool.generateKey(machineId, days) to generate keys. ', 'background:#21262d;color:#58a6ff;padding:4px 8px;border-radius:4px');
+
+// ── BOOT ────────────────────────────────────────────
+initLicenseGate();
+
+// ═══════════════════════════════════
+// THEME
+// ═══════════════════════════════════
+function setTheme(t){
+  document.documentElement.setAttribute('data-theme',t);
+  document.querySelectorAll('.theme-btn').forEach(b=>b.classList.remove('active'));
+  const i={light:0,dark:1,oled:2}[t];
+  if(i!==undefined) document.querySelectorAll('.theme-btn')[i].classList.add('active');
+  localStorage.setItem('optirx-theme',t);
+}
+setTheme('dark');
+
+// ═══════════════════════════════════
+// DATES
+// ═══════════════════════════════════
+const yr=new Date().getFullYear();
+document.getElementById('footer-year').textContent=yr;
+document.getElementById('print-year').textContent=yr;
+document.getElementById('print-date').textContent=new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'});
+
+// ═══════════════════════════════════
+// STATE
+// ═══════════════════════════════════
+let currentEye='OD';
+const blank=()=>({sph:'',cyl:'',axis:90,add:'',pd:'',pdOD:'',pdOS:'',readDist:'',prism:'',baseDir:'',lensType:'distance',lensMatl:'auto',vaUncorr:'',vaCorr:'',segH:'',frameB:'',iop:'',colour:'',pupil:'',coverTest:''});
+const eyeData={OD:blank(),OS:blank()};
+
+function saveCurrentEye(){
+  eyeData[currentEye]={
+    sph:v('sph'),cyl:v('cyl'),axis:parseInt(v('axis'))||90,
+    add:v('add'),pd:v('pd'),pdOD:v('pd-od'),pdOS:v('pd-os'),
+    readDist:v('read-dist'),prism:v('prism'),baseDir:v('base-dir'),
+    lensType:v('lens-type'),lensMatl:v('lens-material'),
+    vaUncorr:v('va-uncorr'),vaCorr:v('va-corr'),
+    segH:v('seg-height'),frameB:v('frame-b'),
+    iop:v('iop'),colour:v('colour-vision'),
+    pupil:v('pupil-size'),coverTest:v('cover-test')
+  };
+}
+function v(id){return document.getElementById(id).value;}
+function s(id,val){document.getElementById(id).value=val||'';}
+
+function loadEye(eye){
+  const d=eyeData[eye];
+  s('sph',d.sph);s('cyl',d.cyl);s('axis',d.axis);
+  document.getElementById('axis-range').value=d.axis;
+  document.getElementById('axis-display').textContent=d.axis+'°';
+  s('add',d.add);s('pd',d.pd);s('pd-od',d.pdOD);s('pd-os',d.pdOS);
+  s('read-dist',d.readDist);s('prism',d.prism);
+  s('base-dir',d.baseDir);s('lens-type',d.lensType);
+  s('lens-material',d.lensMatl);s('va-uncorr',d.vaUncorr);
+  s('va-corr',d.vaCorr);s('seg-height',d.segH);s('frame-b',d.frameB);
+  s('iop',d.iop);s('colour-vision',d.colour);
+  s('pupil-size',d.pupil);s('cover-test',d.coverTest);
+}
+
+function switchEye(eye){
+  saveCurrentEye();currentEye=eye;loadEye(eye);
+  document.getElementById('tab-od').classList.toggle('active',eye==='OD');
+  document.getElementById('tab-os').classList.toggle('active',eye==='OS');
+  document.getElementById('entry-title').textContent=eye==='OD'?'Right Eye — OD':'Left Eye — OS';
+}
+function copyToOther(){
+  saveCurrentEye();
+  const other=currentEye==='OD'?'OS':'OD';
+  eyeData[other]={...eyeData[currentEye]};
+  showToast('Copied to '+other);
+}
+
+// ═══════════════════════════════════
+// TOAST
+// ═══════════════════════════════════
+function showToast(msg,bg){
+  const t=document.createElement('div');
+  t.textContent=msg;
+  Object.assign(t.style,{position:'fixed',bottom:'80px',left:'50%',transform:'translateX(-50%)',background:bg||'var(--accent)',color:'#fff',padding:'0.5rem 1.2rem',borderRadius:'20px',fontFamily:'DM Mono',fontSize:'0.72rem',letterSpacing:'0.08em',zIndex:9999,opacity:'0',transition:'opacity 0.2s',pointerEvents:'none',whiteSpace:'nowrap'});
+  document.body.appendChild(t);
+  requestAnimationFrame(()=>t.style.opacity='1');
+  setTimeout(()=>{t.style.opacity='0';setTimeout(()=>t.remove(),250);},2000);
+}
+
+// ═══════════════════════════════════
+// AXIS SYNC
+// ═══════════════════════════════════
+function syncAxis(v){document.getElementById('axis').value=v;document.getElementById('axis-display').textContent=v+'°';}
+function syncAxisRange(v){const n=Math.min(180,Math.max(1,parseInt(v)||1));document.getElementById('axis-range').value=n;document.getElementById('axis-display').textContent=n+'°';}
+
+// ═══════════════════════════════════
+// NEW F15: MONOCULAR PD SPLIT
+// ═══════════════════════════════════
+function splitPD(total){
+  const t=parseFloat(total);
+  if(!t)return;
+  const half=(t/2).toFixed(1);
+  document.getElementById('pd-od').value=half;
+  document.getElementById('pd-os').value=half;
+}
+
+// ═══════════════════════════════════
+// FORMAT
+// ═══════════════════════════════════
+function fmt(n,prefix=true){
+  if(n===null||n===undefined||isNaN(n))return'—';
+  const s=Math.abs(n).toFixed(2);
+  return prefix?(n>=0?'+':'−')+s:s;
+}
+
+// ═══════════════════════════════════
+// F2: PRESBYOPIA ESTIMATOR
+// ═══════════════════════════════════
+function checkPresby(){
+  const dob=v('patient-dob');
+  const banner=document.getElementById('presby-banner');
+  if(!dob){banner.style.display='none';return;}
+  const age=Math.floor((Date.now()-new Date(dob))/(365.25*24*3600*1000));
+  if(age<40){banner.style.display='none';return;}
+  const exp=Math.min(3.25,Math.max(0.75,((age-40)*0.1)+0.75));
+  banner.style.display='block';
+  banner.innerHTML=`<div class="alert-strip good">👓 Age ${age} — Presbyopia present. Estimated ADD ≈ <strong>+${exp.toFixed(2)} D</strong> (Hofstetter's formula). Refine based on working distance.</div>`;
+}
+
+// ═══════════════════════════════════
+// NEW F20: RX EXPIRY CHECKER
+// ═══════════════════════════════════
+function checkExpiry(){
+  const examDate=v('exam-date');
+  const banner=document.getElementById('expiry-banner');
+  if(!examDate){banner.style.display='none';return;}
+  const exam=new Date(examDate);
+  const expiry=new Date(exam);expiry.setFullYear(expiry.getFullYear()+1);
+  const today=new Date();
+  const daysLeft=Math.ceil((expiry-today)/(1000*60*60*24));
+  banner.style.display='block';
+  if(daysLeft<0){
+    banner.innerHTML=`<div class="alert-strip">⏰ Prescription <strong>EXPIRED</strong> ${Math.abs(daysLeft)} days ago (${expiry.toLocaleDateString('en-IN')}). New examination required.</div>`;
+  } else if(daysLeft<60){
+    banner.innerHTML=`<div class="alert-strip">⚠ Prescription expires in <strong>${daysLeft} days</strong> (${expiry.toLocaleDateString('en-IN')}). Schedule renewal soon.</div>`;
+  } else {
+    banner.innerHTML=`<div class="alert-strip good">✓ Prescription valid for <strong>${daysLeft} more days</strong> (expires ${expiry.toLocaleDateString('en-IN')}).</div>`;
+  }
+}
+
+// ═══════════════════════════════════
+// F1: VISION QUALITY SCORE
+// ═══════════════════════════════════
+function calcVisionScore(sph,cyl,add,prism){
+  let s=100;
+  s-=Math.min(30,Math.abs(sph)*3);
+  s-=Math.min(20,Math.abs(cyl)*6);
+  s-=Math.min(10,add*3);
+  s-=Math.min(10,prism*2);
+  return Math.max(0,Math.round(s));
+}
+function scoreColor(s){return s>=80?'var(--success)':s>=55?'var(--warning)':'var(--accent3)';}
+function scoreLabel(s){return s>=85?'Excellent Optical Profile':s>=70?'Good — Minor Correction':s>=50?'Moderate Correction':s>=30?'Significant Correction':'Complex / High Prescription';}
+
+// ═══════════════════════════════════
+// F4: CL CONVERSION
+// ═══════════════════════════════════
+function getCLConversion(sph,cyl,axis){
+  const se=sph+cyl/2;
+  const toric=Math.abs(cyl)>=0.75;
+  return{se:se.toFixed(2),toric,cylRounded:(Math.round(cyl/0.25)*0.25).toFixed(2),axisVal:axis};
+}
+
+// ═══════════════════════════════════
+// F6: LENS MATERIAL
+// ═══════════════════════════════════
+function recommendMaterial(maxPow){
+  if(maxPow<=2)return{name:'CR-39 Standard (1.50)',index:'1.50',why:'Low prescription — CR-39 offers excellent optics at the most economical price.'};
+  if(maxPow<=3.5)return{name:'Polycarbonate / Hi-Index 1.55',index:'1.55–1.59',why:'Moderate power — polycarbonate adds impact resistance; 15% thinner than CR-39.'};
+  if(maxPow<=5)return{name:'Hi-Index 1.60',index:'1.60',why:'Medium-high prescription — significant thickness reduction with good optics.'};
+  if(maxPow<=7)return{name:'Hi-Index 1.67',index:'1.67',why:'High prescription — noticeably thinner; ideal for rimless or semi-rimless frames.'};
+  return{name:'Hi-Index 1.74 Ultra-Thin',index:'1.74',why:'Very high prescription — maximum thinness; essential for strong Rx cosmesis.'};
+}
+
+// ═══════════════════════════════════
+// F8: SEGMENT HEIGHT
+// ═══════════════════════════════════
+function getSegAdvice(segH,frameB,lt){
+  if(!segH||!frameB||(lt!=='bifocal'&&lt!=='progressive'))return null;
+  const ratio=(segH/frameB*100).toFixed(0);
+  if(segH<14)return{ok:false,msg:`⚠ Seg height ${segH}mm too low — reading zone may be cut off.`};
+  if(segH>frameB-4)return{ok:false,msg:`⚠ Seg height ${segH}mm very high for frame B ${frameB}mm — may crowd distance zone.`};
+  return{ok:true,msg:`✓ Seg height ${segH}mm (${ratio}% of frame B ${frameB}mm) — within clinical range.`};
+}
+
+// ═══════════════════════════════════
+// NEW F17: ACCOMMODATION AMPLITUDE (Hofstetter)
+// ═══════════════════════════════════
+function calcAccomm(dob){
+  if(!dob)return null;
+  const age=Math.floor((Date.now()-new Date(dob))/(365.25*24*3600*1000));
+  const maxAmpl=Math.max(0,(25-0.4*age));
+  const minAmpl=Math.max(0,(15-0.25*age));
+  const meanAmpl=Math.max(0,(18.5-0.3*age));
+  return{age,maxAmpl:maxAmpl.toFixed(1),minAmpl:minAmpl.toFixed(1),meanAmpl:meanAmpl.toFixed(1),nearPoint:(100/meanAmpl).toFixed(0)};
+}
+
+// ═══════════════════════════════════
+// NEW F11: RX COMPARISON (history load)
+// ═══════════════════════════════════
+function buildCompareModal(){
+  const h=getHistory();
+  const body=document.getElementById('compare-body');
+  if(h.length<1){body.innerHTML='<div class="history-empty">Save at least one prescription first to compare.</div>';return;}
+  saveCurrentEye();
+  const cur=eyeData;
+  const prev=h[0];
+  const rows=['sph','cyl','axis','add'];
+  let html='<div style="font-family:DM Mono,monospace;font-size:0.65rem;color:var(--text2);margin-bottom:0.75rem">Comparing <strong style="color:var(--accent)">Current</strong> vs <strong style="color:var(--accent2)">'+prev.name+' ('+prev.date+')</strong></div>';
+  html+='<table class="compare-table"><thead><tr><th>Field</th><th>OD Current</th><th>OD Prev</th><th>Δ OD</th><th>OS Current</th><th>OS Prev</th><th>Δ OS</th></tr></thead><tbody>';
+  rows.forEach(field=>{
+    ['OD','OS'].forEach(()=>{});
+    const curOD=parseFloat(cur.OD[field])||0;
+    const curOS=parseFloat(cur.OS[field])||0;
+    const prevOD=parseFloat(prev.od[field])||0;
+    const prevOS=parseFloat(prev.os[field])||0;
+    const dOD=(curOD-prevOD).toFixed(2);
+    const dOS=(curOS-prevOS).toFixed(2);
+    const clOD=parseFloat(dOD)===0?'compare-change-same':'compare-change-up';
+    const clOS=parseFloat(dOS)===0?'compare-change-same':'compare-change-up';
+    html+=`<tr><td>${field.toUpperCase()}</td><td>${fmt(curOD)}</td><td>${fmt(prevOD)}</td><td class="${clOD}">${parseFloat(dOD)>0?'+':''}${dOD}</td><td>${fmt(curOS)}</td><td>${fmt(prevOS)}</td><td class="${clOS}">${parseFloat(dOS)>0?'+':''}${dOS}</td></tr>`;
+  });
+  html+='</tbody></table>';
+  body.innerHTML=html;
+}
+
+// ═══════════════════════════════════
+// NEW F12: VERTEX DISTANCE CALC
+// ═══════════════════════════════════
+function calcVertex(){
+  const F=parseFloat(document.getElementById('vd-power').value);
+  const d1=parseFloat(document.getElementById('vd-spec').value)||12;
+  const d2=parseFloat(document.getElementById('vd-cl').value)||0;
+  if(isNaN(F)){showToast('Enter a power value','var(--warning)');return;}
+  const F1=F/(1-(d1/1000)*F);
+  const F2=F1/(1+(d2/1000)*F1);
+  const result=document.getElementById('vd-result');
+  result.style.display='block';
+  result.innerHTML=`Spectacle Rx: <strong>${fmt(F)} D</strong> @ ${d1}mm<br>Back vertex power: <strong>${fmt(F1)} D</strong><br>CL equivalent power: <strong>${fmt(Math.round(F2*4)/4)} D</strong> (rounded to 0.25D step)${Math.abs(F)>4?'<br><span style="color:var(--warning);font-size:0.65rem">⚠ Vertex correction is clinically significant for |Rx| > 4D</span>':''}`;
+}
+
+// ═══════════════════════════════════
+// NEW F13: PRENTICE'S RULE
+// ═══════════════════════════════════
+function calcPrentice(){
+  const P=parseFloat(document.getElementById('pr-power').value);
+  const D=parseFloat(document.getElementById('pr-dec').value);
+  if(isNaN(P)||isNaN(D)){showToast('Enter both values','var(--warning)');return;}
+  const prism=Math.abs(P*(D/10)).toFixed(2);
+  const res=document.getElementById('pr-result');
+  res.style.display='block';
+  res.innerHTML=`Prismatic Effect = <strong>${prism}Δ</strong><br><span style="font-size:0.68rem;color:var(--text2)">P(Δ) = F(D) × d(cm) = ${Math.abs(P).toFixed(2)} × ${(D/10).toFixed(1)} = ${prism}Δ</span>${parseFloat(prism)>1?'<br><span style="color:var(--warning);font-size:0.65rem">⚠ Clinically significant — may cause diplopia or asthenopia</span>':''}`;
+}
+
+// ═══════════════════════════════════
+// NEW F14: QR CODE GENERATOR
+// ═══════════════════════════════════
+function generateQR(text){
+  const canvas=document.getElementById('qr-canvas');
+  const ctx=canvas.getContext('2d');
+  const size=200;
+  canvas.width=size;canvas.height=size;
+  ctx.fillStyle='#ffffff';ctx.fillRect(0,0,size,size);
+  // Simple QR-like pattern (visual placeholder — real QR via URL encoding)
+  const qrUrl=`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(text)}`;
+  const img=new Image();
+  img.crossOrigin='anonymous';
+  img.onload=()=>{ctx.drawImage(img,0,0,size,size);};
+  img.onerror=()=>{
+    ctx.fillStyle='#000';ctx.font='10px monospace';ctx.fillText('QR requires',10,100);ctx.fillText('internet',10,115);
+  };
+  img.src=qrUrl;
+}
+function openQR(){
+  saveCurrentEye();
+  const name=v('patient-name')||'Patient';
+  const txt=buildRxText();
+  openModal('qr-modal');
+  setTimeout(()=>generateQR(txt),100);
+}
+function downloadQR(){
+  const canvas=document.getElementById('qr-canvas');
+  const a=document.createElement('a');
+  a.download='optirx-qr.png';
+  a.href=canvas.toDataURL();
+  a.click();
+}
+
+function buildRxText(){
+  const name=v('patient-name')||'Patient';
+  const prescriber=v('prescriber');
+  const examDate=v('exam-date');
+  let txt=`OPTIRX PRESCRIPTION\nPatient: ${name}\n`;
+  if(examDate)txt+=`Exam: ${examDate}\n`;
+  if(prescriber)txt+=`Dr: ${prescriber}\n`;
+  txt+=`\n`;
+  ['OD','OS'].forEach(eye=>{
+    const d=eyeData[eye];
+    txt+=`${eye}: SPH ${d.sph||'0'} / CYL ${d.cyl||'0'} x ${d.axis}°`;
+    if(d.add)txt+=` ADD ${d.add}`;
+    if(d.pd)txt+=` PD ${d.pd}mm`;
+    txt+='\n';
+  });
+  txt+=`\n(c) Manik Roy ${new Date().getFullYear()}`;
+  return txt;
+}
+
+// ═══════════════════════════════════
+// MAIN CALCULATE
+// ═══════════════════════════════════
+function calculate(){
+  saveCurrentEye();
+  const card=document.getElementById('results-card');
+  const body=document.getElementById('results-body');
+  card.classList.remove('hidden');
+  let html='';
+
+  // F2: Presbyopia banner in results
+  const dob=v('patient-dob');
+  if(dob){
+    const age=Math.floor((Date.now()-new Date(dob))/(365.25*24*3600*1000));
+    if(age>=40){
+      const exp=Math.min(3.25,Math.max(0.75,((age-40)*0.1)+0.75));
+      const addOD=parseFloat(eyeData.OD.add)||0;
+      const addOS=parseFloat(eyeData.OS.add)||0;
+      const avgAdd=(addOD+addOS)/2;
+      const diff=Math.abs(avgAdd-exp);
+      const presbyNote=avgAdd>0&&diff<0.5?' ADD aligns with estimate.':avgAdd>0?' Entered ADD differs by '+diff.toFixed(2)+' D.':' No ADD entered — consider presbyopia check.';
+      const presbyCls=diff<0.5&&avgAdd>0?'good':'info';
+      html+='<div class="alert-strip '+presbyCls+'">&#128083; Age '+age+' — Est. ADD ≈ +'+exp.toFixed(2)+' D.'+presbyNote+'</div>';
+    }
+  }
+
+  ['OD','OS'].forEach(eye=>{
+    const d=eyeData[eye];
+    const sph=parseFloat(d.sph)||0;
+    const cyl=parseFloat(d.cyl)||0;
+    const axis=parseInt(d.axis)||90;
+    const add=parseFloat(d.add)||0;
+    const pdTotal=parseFloat(d.pd)||null;
+    const pdOD=parseFloat(d.pdOD)||null;
+    const pdOS=parseFloat(d.pdOS)||null;
+    const prism=parseFloat(d.prism)||0;
+    const base=d.baseDir||'';
+    const lt=d.lensType;
+    const se=sph+cyl/2;
+    const nearPow=add>0?sph+add:null;
+    const tSph=sph+cyl,tCyl=-cyl,tAxis=axis<=90?axis+90:axis-90;
+    const score=calcVisionScore(sph,cyl,add,prism);
+    const hasRx=sph!==0||cyl!==0||add>0||prism>0;
+    const eyeLabel=eye==='OD'?'Right Eye — OD':'Left Eye — OS';
+    const monoLabel=eye==='OD'?(pdOD?`OD: ${pdOD} mm`:null):(pdOS?`OS: ${pdOS} mm`:null);
+
+    let warnings=[];
+    if(Math.abs(sph)>6)warnings.push('High myopia/hyperopia (|SPH|>6D) — consider high-index lens.');
+    if(Math.abs(cyl)>2.5)warnings.push('Significant astigmatism (|CYL|>2.5D) — confirm axis accuracy carefully.');
+    if(add>3)warnings.push('High ADD (>+3.00D) — verify presbyopia stage and working distance.');
+    if(prism>5)warnings.push('High prism (>5Δ) — complex binocular case; specialist assessment advised.');
+    if(d.vaCorr&&!['20/20','20/25',''].includes(d.vaCorr))warnings.push(`BCVA ${d.vaCorr} — reduced best-corrected acuity; investigate pathological cause.`);
+
+    html+=`<div class="results-eye-block"><div class="eye-heading">${eyeLabel}</div>`;
+
+    if(d.vaUncorr||d.vaCorr){
+      html+=`<div class="derived-row" style="margin-bottom:0.5rem">
+        <div class="derived-item"><span class="derived-label">Uncorr VA</span><span class="derived-value" style="color:var(--accent3)">${d.vaUncorr||'—'}</span></div>
+        <div class="derived-item"><span class="derived-label">Best Corr VA</span><span class="derived-value">${d.vaCorr||'—'}</span></div>
+      </div>`;
+    }
+
+    html+=`<div class="rx-grid">
+      <div class="rx-cell highlight"><div class="rx-cell-label">SPH</div><div class="rx-cell-value">${fmt(sph)}</div></div>
+      <div class="rx-cell highlight"><div class="rx-cell-label">CYL</div><div class="rx-cell-value">${cyl!==0?fmt(cyl):'Plano'}</div></div>
+      <div class="rx-cell"><div class="rx-cell-label">AXIS</div><div class="rx-cell-value">${cyl!==0?axis+'°':'—'}</div></div>
+      <div class="rx-cell"><div class="rx-cell-label">ADD</div><div class="rx-cell-value">${add>0?fmt(add):'—'}</div></div>
+    </div>`;
+
+    html+=`<div class="derived-row">
+      <div class="derived-item"><span class="derived-label">Sph. Equiv.</span><span class="derived-value">${fmt(se)} D</span></div>
+      <div class="derived-item"><span class="derived-label">Near Power</span><span class="derived-value">${nearPow!==null?fmt(nearPow)+' D':'—'}</span></div>
+    </div>`;
+
+    // NEW F15: Monocular PD in results
+    if(pdTotal||monoLabel){
+      html+=`<div class="derived-row" style="margin-top:0.5rem">`;
+      if(pdTotal)html+=`<div class="derived-item"><span class="derived-label">Total PD</span><span class="derived-value">${pdTotal.toFixed(1)} mm</span></div>`;
+      if(monoLabel)html+=`<div class="derived-item"><span class="derived-label">Mono PD</span><span class="derived-value">${monoLabel}</span></div>`;
+      html+=`</div>`;
+    }
+    if(prism>0){
+      html+=`<div class="derived-row" style="margin-top:0.5rem"><div class="derived-item" style="grid-column:span 2"><span class="derived-label">Prism</span><span class="derived-value">${prism.toFixed(2)}Δ ${base}</span></div></div>`;
+    }
+
+    html+=`<div style="margin-top:0.5rem;padding:0.5rem 0.75rem;background:var(--bg3);border:1px solid var(--border);border-radius:8px;display:flex;justify-content:space-between;align-items:center;">
+      <span class="derived-label">Lens Type</span>
+      <span style="font-family:DM Mono,monospace;font-size:0.78rem;color:var(--text2)">${getLensLabel(lt)}</span>
+    </div>`;
+
+    if(cyl!==0){
+      html+=`<div style="margin-top:0.5rem;padding:0.6rem 0.85rem;background:var(--badge-bg);border:1px solid var(--accent);border-radius:8px;">
+        <div style="font-family:DM Mono,monospace;font-size:0.58rem;color:var(--text2);text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px">Plus-Cylinder Transposition</div>
+        <div style="font-family:DM Mono,monospace;font-size:0.82rem;color:var(--accent)">${fmt(tSph)} DS / ${fmt(tCyl)} DC × ${tAxis}°</div>
+      </div>`;
+    }
+
+    // F1: Score
+    html+=`<div class="vision-score-wrap" style="margin-top:0.6rem">
+      <div class="vision-score-label"><span>Optical Profile Score</span><span style="color:${scoreColor(score)}">${scoreLabel(score)}</span></div>
+      <div class="vision-bar-track"><div class="vision-bar-fill" style="width:${score}%;background:${scoreColor(score)}"></div></div>
+      <div class="vision-score-text" style="color:${scoreColor(score)}">${score}<span style="font-family:'DM Mono',monospace;font-size:0.7rem;opacity:0.6"> / 100</span></div>
+    </div>`;
+
+    // F8: Seg height
+    const seg=getSegAdvice(parseFloat(d.segH),parseFloat(d.frameB),lt);
+    if(seg)html+=`<div class="alert-strip ${seg.ok?'good':''}" style="margin-top:0.5rem">${seg.msg}</div>`;
+
+    if(warnings.length)warnings.forEach(w=>html+=`<div class="alert-strip" style="margin-top:0.5rem">⚠ ${w}</div>`);
+    else if(hasRx)html+=`<div class="alert-strip good" style="margin-top:0.5rem">✓ Values within standard clinical ranges.</div>`;
+
+    html+=`</div>`;
+    if(eye==='OD')html+=`<hr class="divider">`;
+  });
+
+  body.innerHTML=html;
+  buildAnisoCard();
+  buildCLCard();
+  buildMaterialCard();
+  buildAccommCard();
+  buildClinicalCard();
+  card.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+// ═══════════════════════════════════
+// F5: ANISOMETROPIA
+// ═══════════════════════════════════
+function buildAnisoCard(){
+  const odSE=(parseFloat(eyeData.OD.sph)||0)+(parseFloat(eyeData.OD.cyl)||0)/2;
+  const osSE=(parseFloat(eyeData.OS.sph)||0)+(parseFloat(eyeData.OS.cyl)||0)/2;
+  const diff=Math.abs(odSE-osSE);
+  let cls='aniso-ok',label='Isometropic',detail='SE difference is within normal range — no anisometropic concerns.';
+  if(diff>=2.5){cls='aniso-high';label='Significant Anisometropia';detail='Difference ≥2.5D — risk of aniseikonia and binocular issues; specialist fitting and CL assessment recommended.';}
+  else if(diff>=1){cls='aniso-mild';label='Mild Anisometropia';detail='Difference 1–2.5D — monitor binocular vision; may affect CL fitting and lens thickness balance.';}
+  document.getElementById('aniso-body').innerHTML=`
+    <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.5rem">
+      <div class="derived-item" style="flex:1;min-width:80px"><span class="derived-label">OD SE</span><span class="derived-value">${fmt(odSE)} D</span></div>
+      <div class="derived-item" style="flex:1;min-width:80px"><span class="derived-label">OS SE</span><span class="derived-value">${fmt(osSE)} D</span></div>
+      <div class="derived-item" style="flex:1;min-width:80px"><span class="derived-label">Δ Diff</span><span class="derived-value">${diff.toFixed(2)} D</span></div>
+    </div>
+    <span class="aniso-badge ${cls}">${label}</span>
+    <div style="margin-top:0.5rem;font-family:DM Mono,monospace;font-size:0.7rem;color:var(--text2);line-height:1.6">${detail}</div>`;
+  document.getElementById('aniso-card').classList.remove('hidden');
+}
+
+// ═══════════════════════════════════
+// F4: CL CONVERSION
+// ═══════════════════════════════════
+function buildCLCard(){
+  let html='';
+  ['OD','OS'].forEach(eye=>{
+    const d=eyeData[eye];
+    const sph=parseFloat(d.sph)||0,cyl=parseFloat(d.cyl)||0;
+    const cl=getCLConversion(sph,cyl,d.axis);
+    const needsVertex=Math.abs(sph)>4;
+    const eLbl=eye==='OD'?'Right (OD)':'Left (OS)';
+    html+=`<div class="eye-heading" style="margin-bottom:0.5rem">${eLbl}</div>
+    <div class="cl-result-grid" style="margin-bottom:0.5rem">
+      <div class="cl-cell"><div class="cl-cell-label">Soft CL Power (SE)</div><div class="cl-cell-value">${parseFloat(cl.se)>=0?'+':''}${cl.se} D</div></div>
+      <div class="cl-cell"><div class="cl-cell-label">CL Type</div><div class="cl-cell-value">${cl.toric?'Toric (Astigmatic)':'Spherical'}</div></div>
+      ${cl.toric?`<div class="cl-cell"><div class="cl-cell-label">Toric CYL</div><div class="cl-cell-value">${cl.cylRounded} D</div></div><div class="cl-cell"><div class="cl-cell-label">Toric Axis</div><div class="cl-cell-value">${cl.axisVal}°</div></div>`:''}
+    </div>
+    ${needsVertex?`<div class="alert-strip" style="margin-bottom:0.5rem">⚠ |SPH| > 4D — use <button class="mpill" onclick="closeModal('');openModal('vertex-modal')" style="margin-left:4px">Vertex Dist. Tool</button> for accurate CL power.</div>`:''}`;
+  });
+  html+=`<div style="font-family:DM Mono,monospace;font-size:0.62rem;color:var(--text3);margin-top:0.25rem;line-height:1.5">⚠ CL fitting requires professional assessment. Vertex distance correction may be needed for Rx > ±4D.</div>`;
+  document.getElementById('cl-body').innerHTML=html;
+  document.getElementById('cl-card').classList.remove('hidden');
+}
+
+// ═══════════════════════════════════
+// F6: MATERIAL
+// ═══════════════════════════════════
+function buildMaterialCard(){
+  const powers=['OD','OS'].map(eye=>Math.abs((parseFloat(eyeData[eye].sph)||0)+(parseFloat(eyeData[eye].cyl)||0)/2));
+  const maxP=Math.max(...powers);
+  const m=recommendMaterial(maxP);
+  document.getElementById('material-body').innerHTML=`
+    <div style="padding:0.75rem;background:var(--badge-bg);border:1px solid var(--accent);border-radius:10px;margin-bottom:0.75rem">
+      <div style="font-family:DM Mono,monospace;font-size:0.58rem;color:var(--text2);text-transform:uppercase;letter-spacing:.12em;margin-bottom:4px">Recommended · Max SE ≈ ${maxP.toFixed(2)} D</div>
+      <div style="font-family:'DM Serif Display',serif;font-size:1.05rem;color:var(--accent)">${m.name}</div>
+      <div style="font-family:DM Mono,monospace;font-size:0.68rem;color:var(--text2);margin-top:4px">Refractive Index: ${m.index}</div>
+    </div>
+    <div style="font-family:DM Mono,monospace;font-size:0.72rem;color:var(--text2);line-height:1.6">${m.why}</div>`;
+  document.getElementById('material-card').classList.remove('hidden');
+}
+
+// ═══════════════════════════════════
+// NEW F17: ACCOMMODATION CARD
+// ═══════════════════════════════════
+function buildAccommCard(){
+  const dob=v('patient-dob');
+  const a=calcAccomm(dob);
+  const card=document.getElementById('accomm-card');
+  if(!a){card.classList.add('hidden');return;}
+  const nearPt=parseFloat(a.nearPoint);
+  document.getElementById('accomm-body').innerHTML=`
+    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:0.5rem;margin-bottom:0.6rem">
+      <div class="derived-item"><span class="derived-label">Age</span><span class="derived-value">${a.age} yrs</span></div>
+      <div class="derived-item"><span class="derived-label">Mean Amplitude</span><span class="derived-value">${a.meanAmpl} D</span></div>
+      <div class="derived-item"><span class="derived-label">Max Amplitude</span><span class="derived-value">${a.maxAmpl} D</span></div>
+      <div class="derived-item"><span class="derived-label">Min Amplitude</span><span class="derived-value">${a.minAmpl} D</span></div>
+    </div>
+    <div style="padding:0.6rem 0.85rem;background:var(--badge-bg);border:1px solid var(--accent);border-radius:8px;font-family:DM Mono,monospace;font-size:0.78rem;color:var(--accent)">
+      Near Point of Accommodation ≈ <strong>${nearPt > 500 ? 'No accommodation' : nearPt + ' cm'}</strong>
+    </div>
+    <div style="margin-top:0.5rem;font-family:DM Mono,monospace;font-size:0.65rem;color:var(--text3)">Using Hofstetter's formulae: Max = 25−0.4×age, Mean = 18.5−0.3×age, Min = 15−0.25×age</div>`;
+  card.classList.remove('hidden');
+}
+
+// ═══════════════════════════════════
+// NEW F16: CLINICAL FINDINGS CARD
+// ═══════════════════════════════════
+function buildClinicalCard(){
+  const d1=eyeData.OD,d2=eyeData.OS;
+  const iop1=parseFloat(d1.iop),iop2=parseFloat(d2.iop);
+  const colour=d1.colour||d2.colour;
+  const pupil=d1.pupil||d2.pupil;
+  const cover=d1.coverTest||d2.coverTest;
+  const hasData=d1.iop||d2.iop||colour||pupil||cover;
+  const card=document.getElementById('clinical-card');
+  if(!hasData){card.classList.add('hidden');return;}
+
+  let html='<div style="display:flex;flex-direction:column;gap:0.6rem">';
+
+  if(d1.iop||d2.iop){
+    const iopHigh=iop1>21||iop2>21;
+    const iopLow=iop1<10||iop2<10;
+    html+=`<div class="derived-row">
+      <div class="derived-item"><span class="derived-label">IOP OD</span><span class="derived-value" style="color:${iop1>21?'var(--accent3)':iop1<10?'var(--warning)':'var(--accent2)'}">${d1.iop?iop1+' mmHg':'—'}</span></div>
+      <div class="derived-item"><span class="derived-label">IOP OS</span><span class="derived-value" style="color:${iop2>21?'var(--accent3)':iop2<10?'var(--warning)':'var(--accent2)'}">${d2.iop?iop2+' mmHg':'—'}</span></div>
+    </div>`;
+    if(iopHigh)html+=`<div class="alert-strip">🔴 IOP elevated (>21 mmHg) — glaucoma risk; refer for full assessment including disc evaluation and visual fields.</div>`;
+    else if(iopLow)html+=`<div class="alert-strip">🟡 IOP low (<10 mmHg) — consider ocular hypotony or uveitis.</div>`;
+    else html+=`<div class="alert-strip good">✓ IOP within normal range (10–21 mmHg).</div>`;
+  }
+
+  if(colour){
+    const cvMap={normal:'Normal — full colour discrimination',mild:'Mild colour deficiency — may affect some occupations',moderate:'Moderate deficiency — DVLA notification may apply',severe:'Severe / Dichromacy — significant occupational impact',achromatopsia:'Achromatopsia — complete colour blindness; photophobia likely'};
+    const cvBad=colour!=='normal';
+    html+=`<div class="${cvBad?'alert-strip':'alert-strip good'}">🎨 Colour Vision: <strong>${cvMap[colour]||colour}</strong></div>`;
+  }
+
+  if(pupil){
+    const pp=parseFloat(pupil);
+    html+=`<div class="derived-row"><div class="derived-item" style="grid-column:span 2"><span class="derived-label">Pupil Size</span><span class="derived-value">${pp} mm — ${pp<2.5?'Miosis (small)':pp>5?'Mydriasis (large) — consider aberration impact on optical quality':'Normal photopic range'}</span></div></div>`;
+  }
+
+  if(cover){
+    const coverMap={ortho:'Orthophoria — normal binocular alignment',esophoria:'Esophoria — latent convergent deviation',exophoria:'Exophoria — latent divergent deviation',hyperphoria:'Hyperphoria — latent vertical deviation',esotropia:'Esotropia — manifest convergent strabismus; prism/surgery may be needed',exotropia:'Exotropia — manifest divergent strabismus; prism/surgery may be needed'};
+    const isManifest=cover.includes('tropia');
+    html+=`<div class="${isManifest?'alert-strip':'alert-strip info'}">👁 Cover Test: <strong>${coverMap[cover]||cover}</strong></div>`;
+  }
+
+  html+='</div>';
+  document.getElementById('clinical-body').innerHTML=html;
+  card.classList.remove('hidden');
+}
+
+function getLensLabel(lt){return{distance:'Distance Only',near:'Near / Reading',bifocal:'Bifocal',progressive:'Progressive / No-Line',single:'Single Vision',occupational:'Occupational (Computer)'}[lt]||lt;}
+
+// ═══════════════════════════════════
+// F3: HISTORY
+// ═══════════════════════════════════
+function getHistory(){try{return JSON.parse(localStorage.getItem('optirx-history')||'[]');}catch{return[];}}
+function saveHistoryData(h){localStorage.setItem('optirx-history',JSON.stringify(h));}
+
+function saveToHistory(){
+  saveCurrentEye();
+  const name=v('patient-name')||'Anonymous';
+  const date=new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+  const entry={id:Date.now(),name,date,od:{...eyeData.OD},os:{...eyeData.OS}};
+  const h=getHistory();h.unshift(entry);if(h.length>30)h.splice(30);
+  saveHistoryData(h);renderHistory();
+  showToast('Saved to history','var(--accent2)');
+}
+
+function loadFromHistory(id){
+  const e=getHistory().find(x=>x.id===id);if(!e)return;
+  eyeData.OD={...eyeData.OD,...e.od};eyeData.OS={...eyeData.OS,...e.os};
+  loadEye(currentEye);
+  if(e.name!=='Anonymous')document.getElementById('patient-name').value=e.name;
+  showToast('Loaded: '+e.name);
+}
+
+function deleteFromHistory(id,ev){
+  ev.stopPropagation();
+  saveHistoryData(getHistory().filter(x=>x.id!==id));renderHistory();
+}
+
+function clearHistory(){localStorage.removeItem('optirx-history');renderHistory();showToast('History cleared');}
+
+function renderHistory(){
+  const list=document.getElementById('history-list');
+  const h=getHistory();
+  if(!h.length){list.innerHTML='<div class="history-empty">No saved prescriptions yet.<br>Calculate and tap <strong>+ Save</strong> to store.</div>';return;}
+  list.innerHTML=h.map(e=>`
+    <div class="history-item" onclick="loadFromHistory(${e.id})">
+      <div>
+        <div class="history-item-rx">${e.name}</div>
+        <div class="history-item-info">OD: ${e.od.sph||'0'} / ${e.od.cyl||'0'} × ${e.od.axis}° &nbsp;|&nbsp; OS: ${e.os.sph||'0'} / ${e.os.cyl||'0'} × ${e.os.axis}°</div>
+        <div class="history-item-date">${e.date}</div>
+      </div>
+      <button class="history-del" onclick="deleteFromHistory(${e.id},event)" title="Delete">✕</button>
+    </div>`).join('');
+}
+renderHistory();
+
+// ═══════════════════════════════════
+// EXPORT / SHARE
+// ═══════════════════════════════════
+function doPrint(){closeModal('share-modal');window.print();}
+
+// NEW F: WHATSAPP SHARE
+function shareWhatsApp(){
+  saveCurrentEye();
+  const txt=buildRxText();
+  const url='https://wa.me/?text='+encodeURIComponent(txt);
+  window.open(url,'_blank');
+  closeModal('share-modal');
+}
+
+function copyRxText(){
+  saveCurrentEye();
+  const txt=buildRxText();
+  navigator.clipboard.writeText(txt).then(()=>{
+    document.getElementById('copy-confirm').style.display='block';
+    setTimeout(()=>document.getElementById('copy-confirm').style.display='none',2500);
+  });
+}
+
+function downloadJSON(){
+  saveCurrentEye();
+  const data={
+    patient:{name:v('patient-name'),dob:v('patient-dob'),examDate:v('exam-date'),prescriber:v('prescriber'),clinic:v('clinic-name'),phone:v('clinic-phone'),notes:v('clinical-notes')},
+    prescription:{OD:eyeData.OD,OS:eyeData.OS},
+    generated:new Date().toISOString(),
+    tool:'OptiRx © Manik Roy '+new Date().getFullYear()
+  };
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));
+  a.download=`optirx-${(v('patient-name')||'rx').replace(/\s+/g,'-').toLowerCase()}-${Date.now()}.json`;
+  a.click();
+  closeModal('share-modal');showToast('JSON downloaded');
+}
+
+// ═══════════════════════════════════
+// NEW F18: FONT SIZE TOGGLE
+// ═══════════════════════════════════
+function toggleFontSize(){
+  document.body.classList.toggle('fs-large');
+  const btn=document.getElementById('fs-btn');
+  btn.textContent=document.body.classList.contains('fs-large')?'A Normal Text':'A+ Large Text';
+}
+
+// ═══════════════════════════════════
+// NEW F19: PWA INSTALL
+// ═══════════════════════════════════
+let deferredPrompt=null;
+window.addEventListener('beforeinstallprompt',e=>{
+  e.preventDefault();deferredPrompt=e;
+  document.getElementById('pwa-banner').classList.remove('hidden');
+});
+function installPWA(){
+  if(deferredPrompt){deferredPrompt.prompt();deferredPrompt.userChoice.then(()=>{deferredPrompt=null;document.getElementById('pwa-banner').classList.add('hidden');});}
+}
+
+// ═══════════════════════════════════
+// MODAL
+// ═══════════════════════════════════
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.modal-overlay').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');}));
+
+// ═══════════════════════════════════
+// RESET
+// ═══════════════════════════════════
+function resetAll(){
+  eyeData.OD=blank();eyeData.OS=blank();
+  loadEye(currentEye);
+  ['results-card','aniso-card','cl-card','material-card','accomm-card','clinical-card'].forEach(id=>document.getElementById(id).classList.add('hidden'));
+  ['patient-name','prescriber','clinical-notes','clinic-name','clinic-phone'].forEach(id=>document.getElementById(id).value='');
+  ['patient-dob','exam-date'].forEach(id=>document.getElementById(id).value='');
+  ['presby-banner','expiry-banner'].forEach(id=>document.getElementById(id).style.display='none');
+}
+
+// ═══════════════════════════════════
+// INFO
+// ═══════════════════════════════════
+function toggleInfo(){document.getElementById('info-panel').classList.toggle('open');}
+
+// DISCLAIMER
+function dismissDisclaimer(){
+  document.querySelector('.disclaimer-box').classList.add('hidden');
+  document.getElementById('disclaimer-compact').classList.remove('hidden');
+  localStorage.setItem('optirx-disclaimer','dismissed');
+}
+function expandDisclaimer(){
+  document.querySelector('.disclaimer-box').classList.remove('hidden');
+  document.getElementById('disclaimer-compact').classList.add('hidden');
+  document.querySelector('.disclaimer-box').scrollIntoView({behavior:'smooth',block:'start'});
+}
+// Auto-dismiss if previously acknowledged
+if(localStorage.getItem('optirx-disclaimer')==='dismissed'){
+  document.querySelector('.disclaimer-box').classList.add('hidden');
+  document.getElementById('disclaimer-compact').classList.remove('hidden');
+}
+
+// Set today as default exam date
+document.getElementById('exam-date').value=new Date().toISOString().split('T')[0];
+checkExpiry();
+
+// ═══════════════════════════════════
+// SERVICE WORKER REGISTRATION
+// ═══════════════════════════════════
+if('serviceWorker' in navigator){
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js')
+      .then(reg => {
+        console.log('[OptiRx] SW registered, scope:', reg.scope);
+        // Check for updates
+        reg.addEventListener('updatefound', () => {
+          const newWorker = reg.installing;
+          newWorker.addEventListener('statechange', () => {
+            if(newWorker.state === 'installed' && navigator.serviceWorker.controller){
+              showToast('Update available — refresh to get the latest OptiRx', 'var(--accent2)');
+            }
+          });
+        });
+      })
+      .catch(err => console.warn('[OptiRx] SW registration failed:', err));
+  });
+}
+</script>
+</body>
+</html>
